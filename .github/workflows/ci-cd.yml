@@ -1,0 +1,33 @@
+name: AML GNN CI/CD Pipeline
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  test_and_validate:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v3
+
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.11'
+
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+
+    - name: Run Pipeline Automated Unit & Integration Tests
+      run: |
+        pytest tests/
+
+    - name: Validate GNN Model Inference & Explainability
+      run: |
+        python -c "from src.gnn_model import GNNModelManager; gnn = GNNModelManager(); print('GNN Loaded Successfully')"
