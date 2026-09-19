@@ -1,4 +1,11 @@
-import pytest
+import os
+import sys
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+
+try:
+    import pytest
+except ImportError:
+    pytest = None
 import numpy as np
 import pandas as pd
 from src.data_generator import AMLDataGenerator
@@ -106,4 +113,19 @@ def test_graph_visualizer():
     assert fig_populated is not None
     assert len(fig_populated.data) > 0
 
+
+if __name__ == "__main__":
+    test_data_generator()
+    print("[PASS] test_data_generator passed")
+    test_transaction_processor()
+    print("[PASS] test_transaction_processor passed")
+    test_graph_and_gnn_pipeline()
+    print("[PASS] test_graph_and_gnn_pipeline passed")
+    test_alert_engine()
+    print("[PASS] test_alert_engine passed")
+    test_mlops_monitoring()
+    print("[PASS] test_mlops_monitoring passed")
+    test_graph_visualizer()
+    print("[PASS] test_graph_visualizer passed")
+    print("\nAll 6 tests passed successfully!")
 
