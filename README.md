@@ -1,22 +1,24 @@
 # Real-Time Graph Neural Network (GNN) AML Transaction Monitoring System
 
 [![Live Dashboard](https://img.shields.io/badge/Live%20React%20App-GitHub%20Pages-sky.svg)](https://abbhasaignn-del.github.io/gnn-aml-transaction-monitoring/)
-[![FastAPI Backend](https://img.shields.io/badge/REST%20API-FastAPI-009688.svg)](https://abbasai-gnn-gnn-aml-transaction-monitoring.hf.space/docs)
-[![Python 3.10+](https://img.shields.io/badge/Python-3.10%2B-blue.svg)](https://www.python.org/)
-[![PyTorch](https://img.shields.io/badge/PyTorch-2.0%2B-red.svg)](https://pytorch.org/)
-[![GraphSAGE](https://img.shields.io/badge/GNN-GraphSAGE%202--Layer-orange.svg)](https://arxiv.org/abs/1706.02216)
+[![Source Code](https://img.shields.io/badge/GitHub-Repository-181717.svg)](https://github.com/abbhasaignn-del/gnn-aml-transaction-monitoring)
 [![HuggingFace Space](https://img.shields.io/badge/HuggingFace-Spaces-purple.svg)](https://huggingface.co/spaces/abbasai-gnn/gnn-aml-transaction-monitoring)
-[![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
-[![Tests: 6 Passed](https://img.shields.io/badge/Tests-6%20Passed-brightgreen.svg)](tests/)
+[![Model Weights](https://img.shields.io/badge/HuggingFace-Models-orange.svg)](https://huggingface.co/abbasai-gnn/gnn-aml-transaction-monitoring)
+[![REST API](https://img.shields.io/badge/Backend%20API-FastAPI-009688.svg)](https://abbasai-gnn-gnn-aml-transaction-monitoring.hf.space/api/v1)
 
 > **An End-to-End, Production-Grade Financial Crime Detection Platform Powered by Graph Neural Networks (GraphSAGE), Dynamic MultiGraph Construction, Real-Time Stream Simulation, and MLOps Drift Monitoring in Indian Rupees (INR).**
 
 ---
 
-### **Live Deployments & Endpoints**
-- **Interactive React Web App (GitHub Pages)**: [https://abbhasaignn-del.github.io/gnn-aml-transaction-monitoring/](https://abbhasaignn-del.github.io/gnn-aml-transaction-monitoring/)
-- **Hugging Face Space**: [https://huggingface.co/spaces/abbasai-gnn/gnn-aml-transaction-monitoring](https://huggingface.co/spaces/abbasai-gnn/gnn-aml-transaction-monitoring)
-- **FastAPI OpenAPI Swagger Documentation**: [https://abbasai-gnn-gnn-aml-transaction-monitoring.hf.space/docs](https://abbasai-gnn-gnn-aml-transaction-monitoring.hf.space/docs)
+### **System Deployments & Official Links**
+
+| Component | Platform | URL |
+| :--- | :--- | :--- |
+| **Live Interactive Web App** | GitHub Pages | [https://abbhasaignn-del.github.io/gnn-aml-transaction-monitoring/](https://abbhasaignn-del.github.io/gnn-aml-transaction-monitoring/) |
+| **Source Code Repository** | GitHub | [https://github.com/abbhasaignn-del/gnn-aml-transaction-monitoring](https://github.com/abbhasaignn-del/gnn-aml-transaction-monitoring) |
+| **GNN AML Web Dashboard** | Hugging Face Spaces | [https://huggingface.co/spaces/abbasai-gnn/gnn-aml-transaction-monitoring](https://huggingface.co/spaces/abbasai-gnn/gnn-aml-transaction-monitoring) |
+| **Model Weights & PyTorch Checkpoints** | Hugging Face Models | [https://huggingface.co/abbasai-gnn/gnn-aml-transaction-monitoring](https://huggingface.co/abbasai-gnn/gnn-aml-transaction-monitoring) |
+| **Backend REST API Endpoint** | Hugging Face Endpoint | [https://abbasai-gnn-gnn-aml-transaction-monitoring.hf.space/api/v1](https://abbasai-gnn-gnn-aml-transaction-monitoring.hf.space/api/v1) |
 
 ---
 
