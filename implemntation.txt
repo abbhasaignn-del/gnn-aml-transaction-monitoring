@@ -1,0 +1,880 @@
+Based on your uploaded project document, the system should combine **real-time transaction processing, graph construction, GNN-based risk scoring, AML alerts, investigation, and an MLOps/CI/CD pipeline**. 
+
+## Implementation Plan
+
+### 1. Overall Architecture
+
+```text
+Bank Transaction
+      │
+      ▼
+Transaction API / Kafka
+      │
+      ▼
+Data Preprocessing
+      │
+      ▼
+Graph Construction
+      │
+      ▼
+Graph Database
+(Accounts + Transactions)
+      │
+      ▼
+GNN Model
+      │
+      ▼
+Risk Score
+      │
+ ┌────┴─────┐
+ │          │
+Low Risk   High Risk
+ │          │
+ ▼          ▼
+Store      AML Alert
+           │
+           ▼
+      Investigation
+           │
+           ▼
+     Feedback / Labels
+           │
+           ▼
+      MLOps Pipeline
+           │
+      ┌────┴─────┐
+      ▼          ▼
+ Monitoring   Retraining
+      │          │
+      └────┬─────┘
+           ▼
+      Model Registry
+           │
+           ▼
+      CI/CD Deployment
+```
+
+This follows the document's stated workflow: **Transaction Input → Preprocessing → Graph Construction → Real-Time Processing → GNN Analysis → Risk Score → AML Alert → Investigation → Performance Monitoring → Automatic Retraining → CI/CD Validation → Model Deployment.** 
+
+---
+
+# Phase 1 — Define the MVP
+
+Start with a manageable prototype rather than building the complete banking infrastructure.
+
+### MVP features
+
+1. Transaction ingestion
+2. Transaction preprocessing
+3. Graph creation
+4. GNN model
+5. Real-time risk scoring
+6. Alert generation
+7. Simple investigation dashboard
+8. Model monitoring
+9. Automated retraining
+10. CI/CD
+
+The document specifically identifies real-time monitoring, automated risk scoring, alert generation, and centralized AML investigation as key capabilities. 
+
+---
+
+# Phase 2 — Prepare Transaction Dataset
+
+Create a transaction dataset such as:
+
+| Field            | Example          |
+| ---------------- | ---------------- |
+| transaction_id   | TX10001          |
+| sender_account   | A100             |
+| receiver_account | A205             |
+| amount           | 75000            |
+| timestamp        | 2026-09-18 10:30 |
+| transaction_type | transfer         |
+| country          | IN               |
+| channel          | online           |
+| is_fraud/aml     | 0/1              |
+
+For the first implementation, you can use:
+
+* publicly available synthetic financial transaction data
+* generated synthetic transactions
+* an existing AML dataset
+
+Avoid using real customer banking data in the prototype.
+
+### Data preprocessing
+
+Implement:
+
+```text
+Missing value handling
+        ↓
+Duplicate removal
+        ↓
+Feature normalization
+        ↓
+Categorical encoding
+        ↓
+Timestamp processing
+        ↓
+Transaction validation
+```
+
+---
+
+# Phase 3 — Build the Transaction Graph
+
+The central concept of your project is the graph.
+
+Represent:
+
+```text
+Account = Node
+Transaction = Edge
+```
+
+Example:
+
+```text
+A101 ──₹50,000──> A205
+ │                  │
+ │                  ▼
+ └──────────────> A310
+                    │
+                    ▼
+                   A101
+```
+
+This allows the system to capture relationships between multiple accounts instead of analyzing transactions independently, which is one of the project's main objectives. 
+
+### Node features
+
+For each account:
+
+```text
+total_transactions
+total_sent
+total_received
+average_transaction
+number_of_counterparties
+account_age
+country
+risk_history
+```
+
+### Edge features
+
+For each transaction:
+
+```text
+amount
+timestamp
+transaction_type
+channel
+country
+frequency
+```
+
+---
+
+# Phase 4 — Graph Database
+
+For the prototype, use **Neo4j** or a graph representation using **PyTorch Geometric/DGL**.
+
+Recommended architecture:
+
+```text
+PostgreSQL
+    │
+    ├── Transaction metadata
+    │
+    ▼
+Kafka
+    │
+    ▼
+Graph Processing
+    │
+    ▼
+Neo4j
+    │
+    ▼
+GNN
+```
+
+Neo4j is useful for investigation because investigators can visually inspect relationships such as:
+
+```text
+Account A
+   ↓
+Account B
+   ↓
+Account C
+   ↓
+Account D
+   ↓
+Account A
+```
+
+This is particularly useful for identifying circular and interconnected transaction patterns mentioned in the project document. 
+
+---
+
+# Phase 5 — Develop the GNN
+
+For your first version, use **GraphSAGE**.
+
+Recommended stack:
+
+```text
+Python
+PyTorch
+PyTorch Geometric
+```
+
+Basic architecture:
+
+```text
+Input Node Features
+       │
+       ▼
+GraphSAGE Layer 1
+       │
+       ▼
+ReLU
+       │
+       ▼
+GraphSAGE Layer 2
+       │
+       ▼
+Fully Connected Layer
+       │
+       ▼
+Risk Probability
+```
+
+Example output:
+
+```text
+Account A101
+Risk Score = 0.12
+
+Account A205
+Risk Score = 0.87
+
+Account A310
+Risk Score = 0.94
+```
+
+Then define thresholds:
+
+```text
+0.00 – 0.30 → Low Risk
+0.30 – 0.70 → Medium Risk
+0.70 – 1.00 → High Risk
+```
+
+These thresholds should be configurable rather than hard-coded.
+
+---
+
+# Phase 6 — Model Training
+
+Split the data carefully.
+
+```text
+Historical Transactions
+          │
+          ▼
+      Training Data
+          │
+          ▼
+     GNN Training
+          │
+          ▼
+     Validation Data
+          │
+          ▼
+       Evaluation
+```
+
+Important metrics:
+
+* Precision
+* Recall
+* F1-score
+* ROC-AUC
+* PR-AUC
+* False-positive rate
+* False-negative rate
+
+For AML, don't rely only on accuracy because suspicious transactions may represent a small portion of all transactions.
+
+---
+
+# Phase 7 — Real-Time Transaction Pipeline
+
+Use **Apache Kafka** for streaming.
+
+```text
+Transaction Producer
+        │
+        ▼
+     Kafka Topic
+   "transactions"
+        │
+        ▼
+Transaction Consumer
+        │
+        ▼
+Preprocessing
+        │
+        ▼
+Graph Update
+        │
+        ▼
+GNN Inference
+        │
+        ▼
+Risk Score
+```
+
+Example incoming event:
+
+```json
+{
+  "transaction_id": "TX1001",
+  "sender": "A101",
+  "receiver": "A205",
+  "amount": 95000,
+  "timestamp": "2026-09-18T10:30:00"
+}
+```
+
+The system should process this transaction and return something like:
+
+```json
+{
+  "transaction_id": "TX1001",
+  "risk_score": 0.91,
+  "risk_level": "HIGH",
+  "alert": true
+}
+```
+
+---
+
+# Phase 8 — AML Alert System
+
+Create an alert service.
+
+```text
+GNN Risk Score
+      │
+      ▼
+Risk Engine
+      │
+ ┌────┴─────┐
+ ▼          ▼
+Low        High
+ │          │
+ ▼          ▼
+Store     Generate
+           Alert
+             │
+             ▼
+       Investigation DB
+```
+
+Alert fields:
+
+```text
+alert_id
+transaction_id
+account_id
+risk_score
+reason
+created_at
+status
+investigator
+```
+
+Example:
+
+```text
+ALERT-10021
+
+Account: A205
+Risk Score: 0.91
+Amount: ₹95,000
+
+Possible reasons:
+- Circular transaction pattern
+- Unusual transfer amount
+- High-risk connected accounts
+
+Status: OPEN
+```
+
+The uploaded specification explicitly describes generating risk scores or alerts for potentially suspicious activities. 
+
+---
+
+# Phase 9 — Investigation Dashboard
+
+Build a simple web application.
+
+Recommended:
+
+```text
+Frontend
+React
+
+Backend
+FastAPI
+
+Database
+PostgreSQL
+
+Graph
+Neo4j
+```
+
+Dashboard:
+
+```text
+------------------------------------------------
+ AML TRANSACTION MONITORING
+------------------------------------------------
+
+Total Transactions       125,430
+
+High Risk Alerts             342
+Medium Risk                  721
+Open Investigations          156
+
+------------------------------------------------
+
+Recent Alerts
+
+TX10021   A205   0.94   HIGH
+TX10045   A310   0.87   HIGH
+TX10051   A422   0.76   HIGH
+
+------------------------------------------------
+```
+
+When the investigator clicks an alert:
+
+```text
+Account
+   │
+   ├── Transaction
+   │       ↓
+   ├── Account
+   │       ↓
+   ├── Account
+   │       ↓
+   └── Transaction
+```
+
+This provides the centralized investigation capability described in the project. 
+
+---
+
+# Phase 10 — Explainability
+
+This is important because the document identifies difficulty explaining GNN decisions as a disadvantage. 
+
+Don't show only:
+
+```text
+Risk = 0.92
+```
+
+Instead provide:
+
+```text
+Risk Score: 0.92
+
+Contributing factors:
+✓ High transaction frequency
+✓ Large amount
+✓ Multiple connected accounts
+✓ Circular transaction relationship
+✓ Previously suspicious connected account
+```
+
+You can investigate **GNNExplainer** or related graph explainability techniques for the advanced version.
+
+---
+
+# Phase 11 — MLOps
+
+Use:
+
+```text
+MLflow
+Docker
+GitHub Actions
+```
+
+Pipeline:
+
+```text
+New Data
+   │
+   ▼
+Data Validation
+   │
+   ▼
+Model Training
+   │
+   ▼
+Model Evaluation
+   │
+   ▼
+Compare With Existing Model
+   │
+   ▼
+Model Registry
+   │
+   ▼
+Deployment
+```
+
+Track:
+
+```text
+model version
+training dataset version
+parameters
+metrics
+training time
+model artifact
+```
+
+The project specification explicitly requires model performance monitoring, retraining, testing, validation, versioning, and deployment. 
+
+---
+
+# Phase 12 — Model Monitoring
+
+Monitor two categories.
+
+### Model performance
+
+```text
+Precision
+Recall
+F1
+PR-AUC
+False positives
+False negatives
+```
+
+### Data drift
+
+Monitor:
+
+```text
+Transaction amount distribution
+Transaction frequency
+New account patterns
+Country distribution
+Graph degree distribution
+```
+
+Example:
+
+```text
+Model Performance
+
+F1 Score
+Current: 0.81
+Previous: 0.87
+
+Data Drift
+Status: WARNING
+
+Action:
+Retraining required
+```
+
+This addresses the project's concern about **concept drift** caused by changing criminal behavior. 
+
+---
+
+# Phase 13 — Automated Retraining
+
+Set a retraining trigger:
+
+```text
+Performance drops
+       OR
+Data drift detected
+       OR
+Scheduled retraining
+       │
+       ▼
+Collect latest data
+       │
+       ▼
+Train new GNN
+       │
+       ▼
+Evaluate
+       │
+       ▼
+Validation passes?
+     /     \
+   NO       YES
+   │         │
+ Reject    Register
+             │
+             ▼
+          Deploy
+```
+
+---
+
+# Phase 14 — CI/CD
+
+Use GitHub Actions.
+
+Example pipeline:
+
+```text
+Git Push
+   │
+   ▼
+Unit Tests
+   │
+   ▼
+Data Tests
+   │
+   ▼
+Model Tests
+   │
+   ▼
+Build Docker Image
+   │
+   ▼
+Integration Tests
+   │
+   ▼
+Deploy
+```
+
+Separate environments:
+
+```text
+Development
+     ↓
+Testing
+     ↓
+Staging
+     ↓
+Production
+```
+
+---
+
+# Recommended Technology Stack
+
+| Component       | Technology           |
+| --------------- | -------------------- |
+| Programming     | Python               |
+| GNN             | PyTorch Geometric    |
+| GNN Model       | GraphSAGE            |
+| API             | FastAPI              |
+| Streaming       | Apache Kafka         |
+| Graph DB        | Neo4j                |
+| Relational DB   | PostgreSQL           |
+| Frontend        | React                |
+| ML Tracking     | MLflow               |
+| Containers      | Docker               |
+| CI/CD           | GitHub Actions       |
+| Monitoring      | Prometheus + Grafana |
+| Version Control | Git/GitHub           |
+
+---
+
+# Suggested Project Structure
+
+```text
+aml-gnn-monitoring/
+│
+├── data/
+│   ├── raw/
+│   ├── processed/
+│   └── synthetic/
+│
+├── ingestion/
+│   ├── producer.py
+│   └── consumer.py
+│
+├── preprocessing/
+│   └── transaction_processor.py
+│
+├── graph/
+│   ├── graph_builder.py
+│   └── graph_features.py
+│
+├── models/
+│   ├── graphsage.py
+│   ├── train.py
+│   └── predict.py
+│
+├── alerts/
+│   └── alert_engine.py
+│
+├── api/
+│   └── main.py
+│
+├── dashboard/
+│
+├── monitoring/
+│   ├── drift.py
+│   └── metrics.py
+│
+├── mlops/
+│   ├── retraining.py
+│   └── model_registry.py
+│
+├── tests/
+│
+├── docker/
+│
+├── .github/
+│   └── workflows/
+│       └── ci-cd.yml
+│
+├── requirements.txt
+└── README.md
+```
+
+# Implementation Order
+
+Don't implement everything simultaneously. Use these milestones:
+
+### Milestone 1 — Basic ML
+
+**Week 1–2**
+
+```text
+Dataset
+ ↓
+Preprocessing
+ ↓
+Features
+ ↓
+Baseline ML model
+```
+
+### Milestone 2 — Graph + GNN
+
+**Week 3–4**
+
+```text
+Transactions
+ ↓
+Graph
+ ↓
+GraphSAGE
+ ↓
+Risk Score
+```
+
+### Milestone 3 — Real-Time
+
+**Week 5**
+
+```text
+Kafka
+ ↓
+Preprocessing
+ ↓
+GNN inference
+ ↓
+Alert
+```
+
+### Milestone 4 — Dashboard
+
+**Week 6**
+
+```text
+FastAPI
+ +
+React
+ +
+Neo4j
+```
+
+### Milestone 5 — MLOps
+
+**Week 7**
+
+```text
+MLflow
+ ↓
+Monitoring
+ ↓
+Drift Detection
+ ↓
+Retraining
+```
+
+### Milestone 6 — CI/CD
+
+**Week 8**
+
+```text
+GitHub
+ ↓
+Tests
+ ↓
+Docker
+ ↓
+CI/CD
+ ↓
+Deployment
+```
+
+## Final Demo Flow
+
+For your project demonstration, show one suspicious transaction entering the system:
+
+```text
+1. Transaction arrives
+        ↓
+2. Kafka receives transaction
+        ↓
+3. Transaction is preprocessed
+        ↓
+4. Graph is updateds
+        ↓
+5. GNN analyzes account relationships
+        ↓
+6. Risk score = 0.91
+        ↓
+7. AML alert generated
+        ↓
+8. Investigator opens dashboard
+        ↓
+9. Connected transaction network displayed
+        ↓
+10. Investigation result stored
+        ↓
+11. Monitoring detects model/data changes
+        ↓
+12. Retraining pipeline runs
+        ↓
+13. New model validated
+        ↓
+14. CI/CD deploys validated model
+```
+
+This directly demonstrates the core working flow specified in your document while keeping the implementation feasible as an academic/project prototype. 
+s
