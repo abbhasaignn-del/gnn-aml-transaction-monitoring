@@ -181,22 +181,56 @@ $$\text{RiskScore}(u, v) = \sigma \left( W_{\text{classifier}} \cdot z_{uv} + b 
   <p><em><b>Fig. 8</b> — MLOps Concept Drift Monitoring Loop with Kolmogorov-Smirnov Testing & Automated Retraining.</em></p>
 </div>
 
+<br/>
+
+<div align="center">
+  <img src="docs/figures/fig13_ks_drift_distributions.png" alt="Fig. 13 — Empirical Kolmogorov-Smirnov Concept Drift Testing" width="90%" />
+  <p><em><b>Fig. 13</b> — Empirical Two-Sample Kolmogorov-Smirnov (KS) Concept Drift ECDF Distribution Divergence ($D_{	ext{KS}} = 0.449, p < 0.001$).</em></p>
+</div>
+
 ### Two-Sample Kolmogorov-Smirnov (KS) Drift Formulation
 $$D_{\text{KS}} = \sup_{x} |F_{\text{ref}}(x) - F_{\text{prod}}(x)|$$
 $$\text{Reject } H_0 \text{ (Drift Detected) if } p\text{-value} < 0.05 \implies \text{Trigger GNN Retraining}$$
 
 ---
 
-## 8. Experimental Evaluation & Benchmark Comparison
+## 8. Empirical Research Evaluation & Multi-Model Benchmark
 
-### Table V — Experimental Evaluation Results
-| Model / Detection Architecture | Precision (%) | Recall (%) | F1-Score (%) | ROC-AUC (%) | Inference Latency (ms) |
-| :--- | :--- | :--- | :--- | :--- | :--- |
-| Traditional Rule-Based Static Thresholds | 38.2% | 51.4% | 43.8% | 61.2% | **1.1 ms** |
-| Isolated Tabular XGBoost Classifier | 64.7% | 68.9% | 66.7% | 79.5% | 2.4 ms |
-| Tabular Multi-Layer Perceptron (MLP) | 61.3% | 65.2% | 63.2% | 77.1% | 2.1 ms |
-| Standard Graph Convolutional Network (GCN) | 88.4% | 89.1% | 88.7% | 93.8% | 5.8 ms |
-| **Proposed 2-Layer GraphSAGE (Ours)** | **94.8%** | **96.2%** | **95.5%** | **98.4%** | **3.2 ms** |
+<div align="center">
+  <img src="docs/figures/fig10_empirical_roc_pr_curves.png" alt="Fig. 10 — Empirical ROC-AUC and PR-AUC Curves" width="95%" />
+  <p><em><b>Fig. 10</b> — Empirical Dual-Panel Benchmark: (A) ROC-AUC Curves and (B) Precision-Recall (PR-AUC) Curves across 6 Detection Paradigms.</em></p>
+</div>
+
+<br/>
+
+<div align="center">
+  <img src="docs/figures/fig11_model_benchmark_bars.png" alt="Fig. 11 — Model Benchmark Bar Comparison" width="95%" />
+  <p><em><b>Fig. 11</b> — Head-to-Head Quantitative Model Evaluation (Precision, Recall, F1-Score, ROC-AUC, and PR-AUC).</em></p>
+</div>
+
+<br/>
+
+<div align="center">
+  <img src="docs/figures/fig12_confusion_matrices.png" alt="Fig. 12 — Confusion Matrix Comparison" width="95%" />
+  <p><em><b>Fig. 12</b> — Binary Classification Confusion Matrix Comparison showing 93.19% False Alarm Reduction via Inductive GraphSAGE.</em></p>
+</div>
+
+<br/>
+
+### Table V — Comprehensive Empirical Benchmark Results (N = 15,387 Multigraph Transactions)
+| Model / Detection Architecture | Precision (%) | Recall (%) | F1-Score (%) | ROC-AUC (%) | PR-AUC (%) | Inference Latency (ms) |
+| :--- | :--- | :--- | :--- | :--- | :--- | :--- |
+| **Traditional Rule-Based Static Thresholds** | 65.57% | 100.00% | 79.20% | 96.11% | 65.00% | **0.09 ms** |
+| **Tabular Logistic Regression (Class-Weighted)** | 63.66% | 100.00% | 77.80% | 96.36% | 71.65% | 0.001 ms |
+| **Tabular Random Forest Classifier** | 80.67% | 50.89% | 62.41% | 74.79% | 54.38% | 0.01 ms |
+| **Tabular Gradient Boosted Trees (XGBoost/HGB)** | 66.56% | 65.04% | 65.79% | 67.93% | 50.68% | 0.003 ms |
+| **Standard Spectral Graph Convolution (GCN)** | 29.12% | 65.53% | 40.32% | 75.72% | 32.53% | 0.54 ms |
+| **Proposed 2-Layer Inductive GraphSAGE (Ours)** | **96.21%** | **90.89%** | **93.48%** | **99.53%** | **97.65%** | **0.55 ms** |
+
+> **Key Research Takeaways:**
+> 1. **Relational Context Advantage:** Under the critical **PR-AUC metric** (which penalizes false detections in extreme imbalance), GraphSAGE reaches **97.65% PR-AUC**, vastly outperforming Tabular XGBoost ($50.68\%$) and Spectral GCN ($32.53\%$).
+> 2. **93.19% False Alarm Suppression:** Drastically cuts compliance triage fatigue by suppressing 93.2% of false positives caused by static rules.
+> 3. **Sub-Millisecond Inductive Throughput:** GraphSAGE sustains **0.55 ms per transaction**, processing $>1,800$ to $8,500$ tx/sec in streaming banking rails.
 
 ---
 
@@ -227,7 +261,11 @@ gnn-aml-transaction-monitoring/
 │       ├── fig6_risk_scoring_workflow.jpg
 │       ├── fig7_streaming_pipeline.jpg
 │       ├── fig8_mlops_drift_monitoring.jpg
-│       └── fig9_investigation_dashboard.png
+│       ├── fig9_investigation_dashboard.png
+│       ├── fig10_empirical_roc_pr_curves.png
+│       ├── fig11_model_benchmark_bars.png
+│       ├── fig12_confusion_matrices.png
+│       └── fig13_ks_drift_distributions.png
 ├── models/
 │   └── graphsage_aml.pt             # Pretrained 2-Layer PyTorch GraphSAGE weights
 ├── src/

@@ -127,6 +127,14 @@ def get_stats():
         "avg_latency": pipeline_stats["avg_latency"]
     }
 
+@api.get("/api/v1/benchmarks")
+def get_benchmarks():
+    try:
+        with open("benchmark_results.json", "r") as f:
+            return json.load(f)
+    except Exception as e:
+        raise HTTPException(status_code=404, detail="Benchmark results not found. Run benchmark_runner.py first.")
+
 @api.post("/api/v1/transactions/score")
 @spaces.GPU
 def score_transaction_api(req: SingleTransactionRequest):

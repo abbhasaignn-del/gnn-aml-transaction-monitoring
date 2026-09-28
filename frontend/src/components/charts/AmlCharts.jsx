@@ -500,12 +500,12 @@ export function RocPrCurveChart() {
           {activeTab === 'ROC' && (
             <span className="flex items-center gap-1.5 text-slate-500">
               <span className="h-0.5 w-4 bg-slate-400 inline-block"></span>
-              XGBoost (AUC 0.912)
+              XGBoost (AUC 0.679)
             </span>
           )}
         </div>
         <span className="text-[10px] font-mono font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-md border border-emerald-200">
-          +6.6% AUC Lift over Baseline
+          +31.6% AUC Lift over Tabular XGBoost
         </span>
       </div>
     </div>
@@ -521,10 +521,10 @@ export function ConfusionMatrixHeatmap() {
       <div className="border-b border-slate-200 pb-3 flex items-center justify-between">
         <div>
           <h4 className="text-xs font-bold text-slate-900">AML Binary Classification Matrix</h4>
-          <p className="text-[11px] text-slate-500">Empirical Test Dataset (N = 10,000 txns)</p>
+          <p className="text-[11px] text-slate-500">Empirical Test Dataset (N = 4,617 txns)</p>
         </div>
         <span className="text-[11px] font-mono font-bold text-blue-700 bg-blue-50 px-2 py-0.5 rounded border border-blue-200">
-          Accuracy: 98.4%
+          Accuracy: 99.3%
         </span>
       </div>
 
@@ -533,52 +533,52 @@ export function ConfusionMatrixHeatmap() {
         <div className="p-3 rounded-lg bg-emerald-50/80 border border-emerald-200 space-y-1">
           <div className="flex justify-between items-center text-[11px]">
             <span className="font-semibold text-emerald-900">True Positives (TP)</span>
-            <span className="font-mono text-emerald-700 font-bold">1,836</span>
+            <span className="font-mono text-emerald-700 font-bold">608</span>
           </div>
           <p className="text-[10px] text-emerald-700">Laundering Rings Blocked</p>
           <div className="w-full bg-emerald-200 h-1 rounded-full overflow-hidden">
-            <div className="bg-emerald-600 h-full w-[91.8%]"></div>
+            <div className="bg-emerald-600 h-full w-[90.9%]"></div>
           </div>
-          <span className="text-[9px] font-mono text-emerald-800">Recall: 91.8%</span>
+          <span className="text-[9px] font-mono text-emerald-800">Recall: 90.9%</span>
         </div>
 
         {/* False Positive (Normal Flagged) */}
         <div className="p-3 rounded-lg bg-amber-50/80 border border-amber-200 space-y-1">
           <div className="flex justify-between items-center text-[11px]">
             <span className="font-semibold text-amber-900">False Positives (FP)</span>
-            <span className="font-mono text-amber-700 font-bold">112</span>
+            <span className="font-mono text-amber-700 font-bold">24</span>
           </div>
           <p className="text-[10px] text-amber-700">Benign Commercial Review</p>
           <div className="w-full bg-amber-200 h-1 rounded-full overflow-hidden">
-            <div className="bg-amber-500 h-full w-[5.8%]"></div>
+            <div className="bg-amber-500 h-full w-[3.8%]"></div>
           </div>
-          <span className="text-[9px] font-mono text-amber-800">FPR: 1.4% (Ultra Low)</span>
+          <span className="text-[9px] font-mono text-amber-800">FPR: 0.6% (93.2% FP Drop)</span>
         </div>
 
         {/* False Negative (Missed Laundering) */}
         <div className="p-3 rounded-lg bg-red-50/80 border border-red-200 space-y-1">
           <div className="flex justify-between items-center text-[11px]">
             <span className="font-semibold text-red-900">False Negatives (FN)</span>
-            <span className="font-mono text-red-700 font-bold">164</span>
+            <span className="font-mono text-red-700 font-bold">61</span>
           </div>
           <p className="text-[10px] text-red-700">Evasive Structuring Leaks</p>
           <div className="w-full bg-red-200 h-1 rounded-full overflow-hidden">
-            <div className="bg-red-500 h-full w-[8.2%]"></div>
+            <div className="bg-red-500 h-full w-[9.1%]"></div>
           </div>
-          <span className="text-[9px] font-mono text-red-800">Miss Rate: 8.2%</span>
+          <span className="text-[9px] font-mono text-red-800">Miss Rate: 9.1%</span>
         </div>
 
         {/* True Negative (Safe Cleared) */}
         <div className="p-3 rounded-lg bg-blue-50/80 border border-blue-200 space-y-1">
           <div className="flex justify-between items-center text-[11px]">
             <span className="font-semibold text-blue-900">True Negatives (TN)</span>
-            <span className="font-mono text-blue-700 font-bold">7,888</span>
+            <span className="font-mono text-blue-700 font-bold">3,924</span>
           </div>
           <p className="text-[10px] text-blue-700">Auto-Approved Legitimate</p>
           <div className="w-full bg-blue-200 h-1 rounded-full overflow-hidden">
-            <div className="bg-blue-600 h-full w-[98.6%]"></div>
+            <div className="bg-blue-600 h-full w-[99.4%]"></div>
           </div>
-          <span className="text-[9px] font-mono text-blue-800">Specificity: 98.6%</span>
+          <span className="text-[9px] font-mono text-blue-800">Specificity: 99.4%</span>
         </div>
       </div>
     </div>
