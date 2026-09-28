@@ -104,6 +104,31 @@ class TriageRequest(BaseModel):
     notes: Optional[str] = ""
 
 
+@api.get("/")
+@api.get("/api/v1")
+@api.get("/api/v1/")
+def get_api_root():
+    return {
+        "status": "online",
+        "service": "Real-Time GNN AML Transaction Monitoring API",
+        "version": "1.0.0",
+        "model": "Inductive GraphSAGE (2-Layer)",
+        "currency": "INR",
+        "endpoints": {
+            "health": "/api/v1/health",
+            "stats": "/api/v1/stats",
+            "benchmarks": "/api/v1/benchmarks",
+            "score_transaction": "POST /api/v1/transactions/score",
+            "simulate_stream": "POST /api/v1/simulate",
+            "active_alerts": "/api/v1/alerts",
+            "topology_graph": "/api/v1/graph",
+            "mlops_drift": "/api/v1/mlops/drift",
+            "swagger_docs": "/docs",
+            "openapi_spec": "/openapi.json"
+        },
+        "timestamp": datetime.now().isoformat()
+    }
+
 @api.get("/api/v1/health")
 def get_health():
     return {
