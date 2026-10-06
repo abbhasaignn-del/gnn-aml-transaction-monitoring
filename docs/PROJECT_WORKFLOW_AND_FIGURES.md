@@ -7,17 +7,18 @@
 
 ## Table of Contents
 1. [Executive Summary & Problem Statement](#1-executive-summary--problem-statement)
-2. [End-to-End System Architecture Blueprint](#2-end-to-end-system-architecture-blueprint)
-3. [The 8-Stage Real-Time Pipeline Workflow](#3-the-8-stage-real-time-pipeline-workflow)
-4. [Dynamic Directed Multigraph Formalism](#4-dynamic-directed-multigraph-formalism)
-5. [Inductive GraphSAGE Neural Network Architecture](#5-inductive-graphsage-neural-network-architecture)
-6. [Financial Crime Typologies & Graph Signatures](#6-financial-crime-typologies--graph-signatures)
-7. [4-Tier Risk Decision Engine & Triage Gate](#7-4-tier-risk-decision-engine--triage-gate)
-8. [High-Throughput Streaming & Ingestion Rails](#8-high-throughput-streaming--ingestion-rails)
-9. [MLOps Governance & Kolmogorov-Smirnov Concept Drift](#9-mlops-governance--kolmogorov-smirnov-concept-drift)
-10. [Compliance Investigation Dashboard & SAR Generation](#10-compliance-investigation-dashboard--sar-generation)
-11. [Empirical Research Benchmarks & Multi-Model Evaluation](#11-empirical-research-benchmarks--multi-model-evaluation)
-12. [Master Viva, Thesis & IEEE Reviewer Q&A](#12-master-viva-thesis--ieee-reviewer-qa)
+2. [In-Depth Comparison: How Existing Systems Work vs. Our Proposed System](#2-in-depth-comparison-how-existing-systems-work-vs-our-proposed-system)
+3. [End-to-End System Architecture Blueprint](#3-end-to-end-system-architecture-blueprint)
+4. [The 8-Stage Real-Time Pipeline Workflow](#4-the-8-stage-real-time-pipeline-workflow)
+5. [Dynamic Directed Multigraph Formalism](#5-dynamic-directed-multigraph-formalism)
+6. [Inductive GraphSAGE Neural Network Architecture](#6-inductive-graphsage-neural-network-architecture)
+7. [Financial Crime Typologies & Graph Signatures](#7-financial-crime-typologies--graph-signatures)
+8. [4-Tier Risk Decision Engine & Triage Gate](#8-4-tier-risk-decision-engine--triage-gate)
+9. [High-Throughput Streaming & Ingestion Rails](#9-high-throughput-streaming--ingestion-rails)
+10. [MLOps Governance & Kolmogorov-Smirnov Concept Drift](#10-mlops-governance--kolmogorov-smirnov-concept-drift)
+11. [Compliance Investigation Dashboard & SAR Generation](#11-compliance-investigation-dashboard--sar-generation)
+12. [Empirical Research Benchmarks & Multi-Model Evaluation](#12-empirical-research-benchmarks--multi-model-evaluation)
+13. [Master Viva, Thesis & IEEE Reviewer Q&A](#13-master-viva-thesis--ieee-reviewer-qa)
 
 ---
 
@@ -47,7 +48,74 @@ flowchart LR
 
 ---
 
-## 2. End-to-End System Architecture Blueprint
+## 2. In-Depth Comparison: How Existing Systems Work vs. Our Proposed System
+
+### A. Architectural & Workflow Divergence
+
+```mermaid
+flowchart TD
+    subgraph Legacy["Existing Systems (Rule Engines & Tabular ML)"]
+        L1[Raw Transaction Stream] --> L2[Flat Table / SQL Store]
+        L2 --> L3[Static Rules: Flag if Amount > ₹10,00,000]
+        L2 --> L4[Tabular ML: XGBoost / Random Forest on Isolated Row]
+        L3 & L4 --> L5[Overwhelming Alert Backlog: >85-90% False Positives]
+        L5 --> L6[Manual Analyst Triage: 146 Hours / 10k Txns]
+        L6 --> L7[30-90 Day Delayed STR/SAR Filing]
+    end
+
+    subgraph Proposed["Our Proposed Inductive GraphSAGE GNN System"]
+        P1[Raw Transaction Stream] --> P2[Continuous Dynamic Multigraph G = V, E]
+        P2 --> P3[2-Hop Inductive Neighborhood Convolution S1=10, S2=5]
+        P3 --> P4[Joint Structural Embedding + Edge Vector Classification]
+        P4 --> P5[Calibrated Risk Decision: 0.55 ms Latency]
+        P5 --> P6{4-Tier Decision Gate}
+        P6 -->|Critical >= 0.85| P7[Auto-Freeze Account + Instant FIU-IND SAR]
+        P6 -->|High >= 0.70| P8[Targeted Triage: 8.4 Hours / 10k Txns]
+        P6 -->|Normal < 0.40| P9[Auto-Cleared Legitimate Flow]
+        P5 --> P10[Unsupervised Two-Sample KS Drift Monitor]
+        P10 -->|p < 0.05| P11[Autonomous Background Retraining]
+    end
+```
+
+### B. Comprehensive Dimension-by-Dimension Comparison
+
+| Capability / Dimension | Traditional Rule Engines | Tabular Machine Learning (XGBoost/RF) | Transductive Spectral GCN | Proposed Inductive GraphSAGE (Ours) |
+| :--- | :--- | :--- | :--- | :--- |
+| **Input Data Representation** | Isolated transaction fields (Amount, Sender, Receiver). | Flat feature vector treating each row independently ($i.i.d.$). | Full adjacency matrix $\mathbf{A} \in \mathbb{R}^{N \times N}$. | **Dynamic continuous-time directed multigraph $\mathcal{G}(t)$**. |
+| **Multi-Hop Relational Context** | **None (0-hop):** Blind to all counterparty networks. | **None (0-hop):** Only sees isolated transaction statistics. | **Full Graph (Transductive):** High memory, rigid structure. | **2-Hop Inductive Neighborhood:** Aggregates multi-hop network topologies. |
+| **Circular Layering ($A \to B \to C \to A$)** | **0% Catch:** Evaded if amounts stay below static thresholds. | **34.2% Catch:** Detects only if local node volume spikes. | **88.7% Catch:** Requires knowing entire graph in advance. | **98.9% Catch:** Detects closed multi-hop cycles in real time. |
+| **Structuring / Smurfing Evasion** | **0% Catch:** Transfers split $< ₹5,00,000$ pass unnoticed. | **65.0% Catch:** Partial detection via velocity features. | **85.0% Catch:** Struggles with dynamic stream bursts. | **96.4% Catch:** Correlates high fan-out & fan-in subgraphs. |
+| **Zero-Day Account Handling** | **Fails:** Cannot evaluate accounts without transaction history. | **Fails:** No historical feature values for new accounts. | **Fails:** Full Laplacian matrix must be recomputed ($O(N^3)$). | **Succeeds (Zero-Shot):** Inductive embedding computed via sampled neighbors ($0.55\text{ ms}$). |
+| **False Positive Rate (FPR)** | **34.4% - 87.6%:** Severe analyst alert fatigue. | **23.8% - 33.4%:** Heavy point-in-time misclassifications. | **70.9%:** Poor precision under heavy class skew. | **3.8% (93.19% Reduction):** Drastically cleans compliance queues. |
+| **Precision-Recall AUC (PR-AUC)** | **65.00%** | **50.68%** | **32.53%** | **97.65% (State-of-the-Art)** |
+| **Concept Drift Adaptation** | **Manual:** Compliance rules updated months after new typologies emerge. | **Supervised Retraining:** Blocked by 30–90 day label latency. | **Manual Retraining:** Requires full-graph re-indexing. | **Autonomous Unsupervised MLOps:** Two-Sample KS test ($D_{\text{KS}}, p<0.05$) triggers hot-swapped retraining. |
+| **Compliance & SAR Reporting** | **Manual Form Filling:** Takes days per case. | **Manual Form Filling:** No structural attribution. | **No Reporting:** Output is purely raw node scores. | **Automated FIU-IND / FinCEN SAR Synthesis:** Generates legal narrative with graph attribution. |
+
+---
+
+### C. Step-by-Step Scenario Contrast
+
+#### Scenario 1: Circular Layering Loop ($A \to B \to C \to D \to A$)
+1. **How Existing Systems Fail:** Account $A$ sends ₹4,50,000 to $B$, $B$ sends to $C$, $C$ sends to $D$, and $D$ returns ₹4,40,000 to $A$.
+   - *Rule Engine:* Each transaction is under the statutory ₹10,00,000 threshold $\implies$ **Cleared without alert**.
+   - *Tabular XGBoost:* Evaluates each hop as an ordinary transfer $\implies$ **Risk Score $< 0.30$ (Ignored)**.
+2. **How Our System Works:** 
+   - Dynamic multigraph updates adjacency; localized cycle detector identifies closed directed loop.
+   - GraphSAGE 2-hop convolution aggregates representations of $A, B, C, D$.
+   - Joint classification vector produces **Risk Score $= 0.94 \implies$ Account Auto-Frozen + Instant FIU-IND SAR synthesized**.
+
+#### Scenario 2: Smurfing & Mule Dispersal (Fan-Out $\to$ Fan-In)
+1. **How Existing Systems Fail:** An illicit entity splits ₹25,00,000 across 8 mule accounts (₹3,12,500 each via UPI/IMPS), which immediately transfer to an offshore shell account.
+   - *Rule Engine:* All transfers are below CTR reporting limits $\implies$ **Cleared without alert**.
+   - *Tabular XGBoost:* Treats each mule transaction in isolation $\implies$ **Misses the coordinated syndicate**.
+2. **How Our System Works:** 
+   - GraphSAGE measures high out-degree fan-out velocity from the source and incoming fan-in consolidation at the collector.
+   - Flow balance ratio $\beta(v)$ captures zero holding dwell time ($<10\text{ min}$).
+   - Joint risk score exceeds **$0.88 \implies$ Triage escalation flagged for all 8 mule intermediaries simultaneously**.
+
+---
+
+## 3. End-to-End System Architecture Blueprint
 
 <div align="center">
   <img src="docs/figures/fig1_system_architecture.jpg" alt="Fig. 1 — Overall System Architecture" width="95%" />
