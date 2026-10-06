@@ -15,6 +15,8 @@
 | Component | Platform | URL |
 | :--- | :--- | :--- |
 | **Live Interactive Web App** | GitHub Pages | [https://abbhasaignn-del.github.io/gnn-aml-transaction-monitoring/](https://abbhasaignn-del.github.io/gnn-aml-transaction-monitoring/) |
+| **Comprehensive Figures & Q&A Guide** | Markdown Documentation | [PROJECT_WORKFLOW_AND_FIGURES.md](PROJECT_WORKFLOW_AND_FIGURES.md) |
+| **IEEE Paper Manuscript** | Academic Paper Draft | [ieee.md](ieee.md) |
 | **Source Code Repository** | GitHub | [https://github.com/abbhasaignn-del/gnn-aml-transaction-monitoring](https://github.com/abbhasaignn-del/gnn-aml-transaction-monitoring) |
 | **GNN AML Web Dashboard** | Hugging Face Spaces | [https://huggingface.co/spaces/abbasai-gnn/gnn-aml-transaction-monitoring](https://huggingface.co/spaces/abbasai-gnn/gnn-aml-transaction-monitoring) |
 | **Model Weights & PyTorch Checkpoints** | Hugging Face Models | [https://huggingface.co/abbasai-gnn/gnn-aml-transaction-monitoring](https://huggingface.co/abbasai-gnn/gnn-aml-transaction-monitoring) |
