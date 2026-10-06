@@ -1,368 +1,328 @@
-# Real-Time Inductive Graph Neural Networks for Anti-Money Laundering Detection: Comprehensive System Architecture, Visual Figures, and Research Guide
+# Real-Time Inductive Graph Neural Networks for Anti-Money Laundering Detection: Simplified Visual Guide, Architecture Diagrams & Master Q&A
 
 **Abbhas** | *Department of Computer Science and Engineering*  
-**Capstone Technical Documentation & IEEE Research Specification**
+**Comprehensive System Guide & IEEE Research Demonstration**
 
 ---
 
-## Table of Contents
-1. [Executive Summary & Problem Statement](#1-executive-summary--problem-statement)
-2. [In-Depth Comparison: How Existing Systems Work vs. Our Proposed System](#2-in-depth-comparison-how-existing-systems-work-vs-our-proposed-system)
-3. [End-to-End System Architecture Blueprint](#3-end-to-end-system-architecture-blueprint)
-4. [The 8-Stage Real-Time Pipeline Workflow](#4-the-8-stage-real-time-pipeline-workflow)
-5. [Dynamic Directed Multigraph Formalism](#5-dynamic-directed-multigraph-formalism)
-6. [Inductive GraphSAGE Neural Network Architecture](#6-inductive-graphsage-neural-network-architecture)
-7. [Financial Crime Typologies & Graph Signatures](#7-financial-crime-typologies--graph-signatures)
-8. [4-Tier Risk Decision Engine & Triage Gate](#8-4-tier-risk-decision-engine--triage-gate)
-9. [High-Throughput Streaming & Ingestion Rails](#9-high-throughput-streaming--ingestion-rails)
-10. [MLOps Governance & Kolmogorov-Smirnov Concept Drift](#10-mlops-governance--kolmogorov-smirnov-concept-drift)
-11. [Compliance Investigation Dashboard & SAR Generation](#11-compliance-investigation-dashboard--sar-generation)
-12. [Empirical Research Benchmarks & Multi-Model Evaluation](#12-empirical-research-benchmarks--multi-model-evaluation)
-13. [Master Viva, Thesis & IEEE Reviewer Q&A](#13-master-viva-thesis--ieee-reviewer-qa)
+## 📋 Table of Contents
+1. [Executive Summary: What Are We Doing in 60 Seconds?](#1-executive-summary-what-are-we-doing-in-60-seconds)
+2. [Simplified Comparison: Existing AML Systems vs. Our GNN System](#2-simplified-comparison-existing-aml-systems-vs-our-gnn-system)
+3. [End-to-End System Architecture (Fig. 1)](#3-end-to-end-system-architecture-fig-1)
+4. [Step-by-Step 8-Stage Pipeline Workflow (Fig. 2)](#4-step-by-step-8-stage-pipeline-workflow-fig-2)
+5. [The Transaction Graph Model (Fig. 3)](#5-the-transaction-graph-model-fig-3)
+6. [How the 2-Layer GraphSAGE AI Works (Fig. 4)](#6-how-the-2-layer-graphsage-ai-works-fig-4)
+7. [The 3 Money Laundering Crime Patterns We Catch (Fig. 5)](#7-the-3-money-laundering-crime-patterns-we-catch-fig-5)
+8. [4-Tier Risk Decision & Auto-Freeze Engine (Fig. 6)](#8-4-tier-risk-decision--auto-freeze-engine-fig-6)
+9. [High-Speed Streaming Pipeline (Fig. 7)](#9-high-speed-streaming-pipeline-fig-7)
+10. [MLOps Concept Drift & Self-Healing Retraining (Fig. 8 & Fig. 13)](#10-mlops-concept-drift--self-healing-retraining-fig-8--fig-13)
+11. [Investigation Dashboard & Automated SAR/STR Generator (Fig. 9)](#11-investigation-dashboard--automated-sarstr-generator-fig-9)
+12. [Empirical Research Results & Benchmarks (Fig. 10, Fig. 11, Fig. 12)](#12-empirical-research-results--benchmarks-fig-10-fig-11-fig-12)
+13. [Master Viva & Thesis Q&A Guide](#13-master-viva--thesis-qa-guide)
 
 ---
 
-## 1. Executive Summary & Problem Statement
+## 1. Executive Summary: What Are We Doing in 60 Seconds?
 
-### The Critical Banking Vulnerability
-Global Anti-Money Laundering (AML) monitoring is severely crippled by reliance on legacy static rule engines and isolated tabular machine learning models (e.g., standard XGBoost or Random Forests). These legacy paradigms suffer from three systemic flaws:
-1. **Structural Blindness:** Tabular ML processes transactions as independent rows ($i.i.d.$ vectors). It cannot see multi-hop topological crime patterns like circular layering loops ($A \to B \to C \to A$), smurfing fan-out/fan-in syndicates, or coordinated mule chains.
-2. **False Positive Fatigue (>85–90%):** Static threshold filters flag tens of thousands of harmless high-value transactions, wasting millions in analyst hours while missing subtle structured crime.
-3. **Concept Drift & Evolving Adversarial Schemes:** Criminals continually shift amounts, settlement channels (UPI, IMPS, NEFT, RTGS), and velocity intervals. Delayed ground-truth audit labels (30–90 day label latency) render supervised monitoring obsolete for real-time drift protection.
+Money laundering is an organized **network crime** where criminals move illicit funds through complex chains of accounts (circular loops, smurfing, and mule networks) to hide where the money came from.
 
-### Our Solution
-We construct an end-to-end real-time surveillance platform anchored on a **2-Layer Inductive GraphSAGE Neural Network**, **Dynamic Continuous-Time Multigraph Construction**, and an **Unsupervised Kolmogorov-Smirnov (KS) Concept Drift Engine**.
+- **The Problem:** Current banks use static rules (e.g., *"Flag if transaction > ₹10 Lakhs"*) and basic tabular machine learning (XGBoost). These fail because criminals deliberately transfer small amounts across many accounts ($< ₹5\text{ Lakhs}$). This causes **over 85–90% false alarms** and misses organized crime rings.
+- **Our Solution:** We model all bank accounts as **nodes** and money transfers as **edges** in a live graph. We use a **2-Layer Inductive GraphSAGE Neural Network** that looks at the 2-hop neighborhood of every transaction in real-time ($0.55\text{ ms}$), detecting laundering loops with **99.53% ROC-AUC** and **97.65% PR-AUC** while cutting false alarms by **93.19%**.
 
-```mermaid
-flowchart LR
-    A[Banking Rails: UPI/IMPS/NEFT/RTGS] --> B[Dynamic Multigraph G = V, E]
-    B --> C[2-Layer Inductive GraphSAGE]
-    C --> D[Edge Risk Probability 0.0 - 1.0]
-    D --> E{Risk Gate}
-    E -->|Score >= 0.85| F[Auto-Freeze & FIU-IND SAR]
-    E -->|Score >= 0.70| G[High-Risk Compliance Triage]
-    E -->|Score < 0.40| H[Auto-Cleared Legitimate]
-    D --> I[Two-Sample KS Drift Monitor]
-    I -->|p < 0.05| J[Autonomous Retraining Loop]
+```
+[Live Transactions (UPI/IMPS/NEFT/RTGS)] 
+               ↓
+[Live Network Graph G(V, E)] 
+               ↓
+[2-Layer GraphSAGE AI Model] (Computes risk in 0.55 ms)
+               ↓
+    ┌──────────┴──────────┐
+    ↓                     ↓
+[If Score >= 0.85]    [If Score < 0.40]
+Auto-Freeze Account   Auto-Approve Safe
+& Generate SAR File   Instant Settlement
 ```
 
 ---
 
-## 2. In-Depth Comparison: How Existing Systems Work vs. Our Proposed System
+## 2. Simplified Comparison: Existing AML Systems vs. Our GNN System
 
-### A. Architectural & Workflow Divergence
+### 🔍 Quick Visual Flow Comparison
 
 ```mermaid
 flowchart TD
-    subgraph Legacy["Existing Systems (Rule Engines & Tabular ML)"]
-        L1[Raw Transaction Stream] --> L2[Flat Table / SQL Store]
-        L2 --> L3[Static Rules: Flag if Amount > ₹10,00,000]
-        L2 --> L4[Tabular ML: XGBoost / Random Forest on Isolated Row]
-        L3 & L4 --> L5[Overwhelming Alert Backlog: >85-90% False Positives]
-        L5 --> L6[Manual Analyst Triage: 146 Hours / 10k Txns]
-        L6 --> L7[30-90 Day Delayed STR/SAR Filing]
+    subgraph Old["❌ TRADITIONAL SYSTEMS (Existing Rule Engines & XGBoost)"]
+        O1[Single Transaction] --> O2[Looks ONLY at 1 Row: Amount, Time]
+        O2 --> O3{"Is Amount > ₹10 Lakhs?"}
+        O3 -->|No| O4[Cleared! ⚠️ Misses Smurfs & Loops]
+        O3 -->|Yes| O5[Flagged! ⚠️ 90% False Alarms]
     end
 
-    subgraph Proposed["Our Proposed Inductive GraphSAGE GNN System"]
-        P1[Raw Transaction Stream] --> P2[Continuous Dynamic Multigraph G = V, E]
-        P2 --> P3[2-Hop Inductive Neighborhood Convolution S1=10, S2=5]
-        P3 --> P4[Joint Structural Embedding + Edge Vector Classification]
-        P4 --> P5[Calibrated Risk Decision: 0.55 ms Latency]
-        P5 --> P6{4-Tier Decision Gate}
-        P6 -->|Critical >= 0.85| P7[Auto-Freeze Account + Instant FIU-IND SAR]
-        P6 -->|High >= 0.70| P8[Targeted Triage: 8.4 Hours / 10k Txns]
-        P6 -->|Normal < 0.40| P9[Auto-Cleared Legitimate Flow]
-        P5 --> P10[Unsupervised Two-Sample KS Drift Monitor]
-        P10 -->|p < 0.05| P11[Autonomous Background Retraining]
+    subgraph New["✅ OUR PROPOSED GNN SYSTEM (Inductive GraphSAGE)"]
+        N1[Single Transaction] --> N2[Looks at WHOLE 2-Hop Network & Ring Topology]
+        N2 --> N3[2-Layer GraphSAGE AI Embedding in 0.55 ms]
+        N3 --> N4{"Calibrated Risk Score"}
+        N4 -->|High >= 0.85| N5[🚨 Auto-Freeze + Instant FIU-IND SAR Report]
+        N4 -->|Normal < 0.40| N6[✅ Approved with 93.19% Less False Alarms]
     end
 ```
 
-### B. Comprehensive Dimension-by-Dimension Comparison
+> **💡 Simple Explanation for Viva / Presentation:**
+> *"Existing systems are like looking at a single puzzle piece in isolation — you can't tell if it belongs to a crime ring. Our GNN system looks at the surrounding connected pieces (2-hop neighborhood) to immediately spot the full picture of the crime."*
 
-| Capability / Dimension | Traditional Rule Engines | Tabular Machine Learning (XGBoost/RF) | Transductive Spectral GCN | Proposed Inductive GraphSAGE (Ours) |
-| :--- | :--- | :--- | :--- | :--- |
-| **Input Data Representation** | Isolated transaction fields (Amount, Sender, Receiver). | Flat feature vector treating each row independently ($i.i.d.$). | Full adjacency matrix $\mathbf{A} \in \mathbb{R}^{N \times N}$. | **Dynamic continuous-time directed multigraph $\mathcal{G}(t)$**. |
-| **Multi-Hop Relational Context** | **None (0-hop):** Blind to all counterparty networks. | **None (0-hop):** Only sees isolated transaction statistics. | **Full Graph (Transductive):** High memory, rigid structure. | **2-Hop Inductive Neighborhood:** Aggregates multi-hop network topologies. |
-| **Circular Layering ($A \to B \to C \to A$)** | **0% Catch:** Evaded if amounts stay below static thresholds. | **34.2% Catch:** Detects only if local node volume spikes. | **88.7% Catch:** Requires knowing entire graph in advance. | **98.9% Catch:** Detects closed multi-hop cycles in real time. |
-| **Structuring / Smurfing Evasion** | **0% Catch:** Transfers split $< ₹5,00,000$ pass unnoticed. | **65.0% Catch:** Partial detection via velocity features. | **85.0% Catch:** Struggles with dynamic stream bursts. | **96.4% Catch:** Correlates high fan-out & fan-in subgraphs. |
-| **Zero-Day Account Handling** | **Fails:** Cannot evaluate accounts without transaction history. | **Fails:** No historical feature values for new accounts. | **Fails:** Full Laplacian matrix must be recomputed ($O(N^3)$). | **Succeeds (Zero-Shot):** Inductive embedding computed via sampled neighbors ($0.55\text{ ms}$). |
-| **False Positive Rate (FPR)** | **34.4% - 87.6%:** Severe analyst alert fatigue. | **23.8% - 33.4%:** Heavy point-in-time misclassifications. | **70.9%:** Poor precision under heavy class skew. | **3.8% (93.19% Reduction):** Drastically cleans compliance queues. |
-| **Precision-Recall AUC (PR-AUC)** | **65.00%** | **50.68%** | **32.53%** | **97.65% (State-of-the-Art)** |
-| **Concept Drift Adaptation** | **Manual:** Compliance rules updated months after new typologies emerge. | **Supervised Retraining:** Blocked by 30–90 day label latency. | **Manual Retraining:** Requires full-graph re-indexing. | **Autonomous Unsupervised MLOps:** Two-Sample KS test ($D_{\text{KS}}, p<0.05$) triggers hot-swapped retraining. |
-| **Compliance & SAR Reporting** | **Manual Form Filling:** Takes days per case. | **Manual Form Filling:** No structural attribution. | **No Reporting:** Output is purely raw node scores. | **Automated FIU-IND / FinCEN SAR Synthesis:** Generates legal narrative with graph attribution. |
+### 📊 Side-by-Side Comparison Table
 
----
-
-### C. Step-by-Step Scenario Contrast
-
-#### Scenario 1: Circular Layering Loop ($A \to B \to C \to D \to A$)
-1. **How Existing Systems Fail:** Account $A$ sends ₹4,50,000 to $B$, $B$ sends to $C$, $C$ sends to $D$, and $D$ returns ₹4,40,000 to $A$.
-   - *Rule Engine:* Each transaction is under the statutory ₹10,00,000 threshold $\implies$ **Cleared without alert**.
-   - *Tabular XGBoost:* Evaluates each hop as an ordinary transfer $\implies$ **Risk Score $< 0.30$ (Ignored)**.
-2. **How Our System Works:** 
-   - Dynamic multigraph updates adjacency; localized cycle detector identifies closed directed loop.
-   - GraphSAGE 2-hop convolution aggregates representations of $A, B, C, D$.
-   - Joint classification vector produces **Risk Score $= 0.94 \implies$ Account Auto-Frozen + Instant FIU-IND SAR synthesized**.
-
-#### Scenario 2: Smurfing & Mule Dispersal (Fan-Out $\to$ Fan-In)
-1. **How Existing Systems Fail:** An illicit entity splits ₹25,00,000 across 8 mule accounts (₹3,12,500 each via UPI/IMPS), which immediately transfer to an offshore shell account.
-   - *Rule Engine:* All transfers are below CTR reporting limits $\implies$ **Cleared without alert**.
-   - *Tabular XGBoost:* Treats each mule transaction in isolation $\implies$ **Misses the coordinated syndicate**.
-2. **How Our System Works:** 
-   - GraphSAGE measures high out-degree fan-out velocity from the source and incoming fan-in consolidation at the collector.
-   - Flow balance ratio $\beta(v)$ captures zero holding dwell time ($<10\text{ min}$).
-   - Joint risk score exceeds **$0.88 \implies$ Triage escalation flagged for all 8 mule intermediaries simultaneously**.
+| Capability | Legacy Rule Engines | Standard ML (XGBoost / Random Forest) | Our Inductive GraphSAGE GNN |
+| :--- | :--- | :--- | :--- |
+| **How It Views Data** | One transaction at a time | Flat row in a CSV table | **Connected Network Graph $\mathcal{G}(\mathcal{V}, \mathcal{E})$** |
+| **Sees Multi-Hop Crime?** | ❌ No (0-hop blind) | ❌ No (0-hop blind) | **✅ Yes (2-Hop Relational Learning)** |
+| **Catches Circular Loops ($A \to B \to C \to A$)** | ❌ 0% (Bypassed by small amounts) | ⚠️ 34.2% (Only if volume spikes) | **✅ 98.9% (Instant Cycle Detection)** |
+| **Catches Smurfing ($< ₹5\text{ Lakhs}$ split)** | ❌ 0% (Bypassed) | ⚠️ 65.0% | **✅ 96.4% (Catches Fan-Out/Fan-In)** |
+| **Works on New / Zero-Day Accounts?** | ❌ Fails (No history) | ❌ Fails (Missing features) | **✅ Yes (Zero-Shot Inductive in 0.55 ms)** |
+| **False Alarm Rate** | 🚨 High (34.4% – 87.6%) | 🚨 High (23.8% – 33.4%) | **✅ Ultra-Low (3.8% — 93.19% Reduction)** |
+| **Precision-Recall Score (PR-AUC)** | 65.00% | 50.68% | **🏆 97.65% (State-of-the-Art)** |
+| **Adaptation to Changing Fraud Tactics** | ❌ Manual rule changes months later | ❌ Blocked by 30–90 day label lag | **✅ Automated Kolmogorov-Smirnov MLOps** |
+| **Compliance Filing (SAR/STR)** | ⏳ Manual paperwork (Days) | ⏳ Manual paperwork | **⚡ Automated FIU-IND & FinCEN Report** |
 
 ---
 
-## 3. End-to-End System Architecture Blueprint
+## 3. End-to-End System Architecture (Fig. 1)
 
 <div align="center">
-  <img src="docs/figures/fig1_system_architecture.jpg" alt="Fig. 1 — Overall System Architecture" width="95%" />
-  <p><em><b>Fig. 1</b> — End-to-End Enterprise System Architecture Blueprint across 4 operational layers (Ingestion, Graph Learning, Decisioning, and Governance).</em></p>
+  <img src="docs/figures/fig1_system_architecture.jpg" alt="Fig. 1 — Overall System Architecture" width="92%" />
+  <p><em><b>Fig. 1</b> — High-Level Enterprise Architecture Blueprint across 4 operational layers.</em></p>
 </div>
 
-### Architectural Layer Breakdown
-1. **Data Ingestion & Transport Layer:** Ingests live transactional streams across Indian payment rails (`UPI`, `IMPS`, `NEFT`, `RTGS`) with schema validation and sub-millisecond asynchronous queuing.
-2. **Graph Construction & Topological Extraction Layer:** Converts raw transactions into a temporal directed multigraph $\mathcal{G}(t)$, updating 8-dimensional node centrality vectors and 8-dimensional edge attribute tensors in memory.
-3. **Inductive GNN Inference Layer:** 2-layer GraphSAGE neural network performing uniform neighbor sampling ($S_1=10, S_2=5$) to generate 16-dimensional node embeddings and evaluate joint edge representations in $0.55\text{ ms}$.
-4. **Decision, Compliance & MLOps Layer:** Evaluates risk thresholds, automates account freezing, synthesizes FIU-IND statutory SAR reports, and continuously runs two-sample Kolmogorov-Smirnov drift tests.
+### 📌 What Fig. 1 Shows in Simple Steps:
+1. **Layer 1 (Ingestion):** UPI, IMPS, NEFT, and RTGS streams enter FastAPI.
+2. **Layer 2 (Graph Construction):** Transactions build a live NetworkX directed graph; 8-D account stats and 8-D edge vectors are extracted.
+3. **Layer 3 (GNN AI Core):** 2-Layer GraphSAGE calculates the risk probability score $[0.0 - 1.0]$.
+4. **Layer 4 (Actions & Governance):**
+   - If dangerous ($\ge 0.85$) $\implies$ Auto-Freeze account & synthesize legal Suspicious Activity Report (SAR).
+   - MLOps drift engine monitors live score distribution for concept drift.
 
 ---
 
-## 3. The 8-Stage Real-Time Pipeline Workflow
+## 4. Step-by-Step 8-Stage Pipeline Workflow (Fig. 2)
 
 <div align="center">
-  <img src="docs/figures/fig2_eight_stage_workflow.jpg" alt="Fig. 2 — End-to-End 8-Stage AML Detection Workflow" width="95%" />
-  <p><em><b>Fig. 2</b> — End-to-End 8-Stage AML Detection and Investigation Workflow.</em></p>
+  <img src="docs/figures/fig2_eight_stage_workflow.jpg" alt="Fig. 2 — End-to-End 8-Stage AML Detection Workflow" width="92%" />
+  <p><em><b>Fig. 2</b> — End-to-End 8-Stage Live Processing and Compliance Pipeline.</em></p>
 </div>
+
+### 🔄 Simplified Sequence Flow
 
 ```mermaid
 sequenceDiagram
     autonumber
-    participant Stream as Banking Transaction Rails
-    participant Ingest as Stage 1: FastAPI / Ingestion Buffer
-    participant Preproc as Stage 2: Log-Normal Preprocessor
-    participant Graph as Stage 3: Dynamic MultiDiGraph
-    participant Queue as Stage 4: Async Stream Dispatcher
-    participant GNN as Stage 5: 2-Layer Inductive GraphSAGE
-    participant Risk as Stage 6: 4-Tier Decision Gate
-    participant SAR as Stage 7: Compliance SAR Desk
-    participant MLOps as Stage 8: KS Concept Drift Engine
+    actor User as Bank Customer
+    participant Rail as Payment Rail (UPI/IMPS)
+    participant Engine as Stage 1-4: Ingestion & Graph Builder
+    participant AI as Stage 5: GraphSAGE GNN
+    participant Gate as Stage 6: 4-Tier Decision Gate
+    participant Compliance as Stage 7: Auto-SAR Desk
+    participant Drift as Stage 8: MLOps Drift Engine
 
-    Stream->>Ingest: Send Transaction Event T(u, v, amount, channel, timestamp)
-    Ingest->>Preproc: Clean & Validate Schema
-    Preproc->>Graph: Extract 8-D Edge Feature Vector & Update Node State
-    Graph->>Queue: Dispatch 2-Hop Localized Subgraph
-    Queue->>GNN: Execute Mean Aggregation Convolution
-    GNN->>Risk: Compute Risk Score P(AML | u, v, e_uv)
-    Risk->>SAR: If Risk >= 0.85 -> Trigger Auto-Freeze & Generate SAR
-    Risk->>MLOps: Record Score to Production Sliding Window
-    MLOps-->>GNN: If KS Test p < 0.05 -> Trigger Background Retraining
+    User->>Rail: Sends INR Transfer
+    Rail->>Engine: Stream Transaction Event
+    Engine->>AI: Extract 2-Hop Local Graph & Features
+    AI->>Gate: Return Risk Score (e.g., 0.94)
+    alt Critical Risk (Score >= 0.85)
+        Gate->>Compliance: 🚨 Auto-Freeze Account + Generate FIU-IND SAR
+    else Safe (Score < 0.40)
+        Gate->>Rail: ✅ Settle Payment Instantly
+    end
+    Gate->>Drift: Record Score in Rolling Window
+    Drift-->>AI: If Drift (p < 0.05) -> Trigger Auto-Retrain
 ```
 
----
-
-## 4. Dynamic Directed Multigraph Formalism
-
-<div align="center">
-  <img src="docs/figures/fig3_directed_graph.jpg" alt="Fig. 3 — Dynamic Directed Financial Transaction Graph" width="95%" />
-  <p><em><b>Fig. 3</b> — Dynamic Directed Financial Transaction Graph with Heterogeneous Entities, In/Out Flows, and Topological Signatures.</em></p>
-</div>
-
-### Mathematical Graph Model
-The financial banking network is modeled as a continuous-time dynamic directed multigraph:
-
-$$\mathcal{G}(t) = \left( \mathcal{V}(t), \mathcal{E}(t), \mathbf{X}_{\mathcal{V}}(t), \mathbf{X}_{\mathcal{E}}(t) \right)$$
-
-- **Entity Nodes $\mathcal{V}(t)$:** Bank accounts (Retail, Merchant Handles, Corporate Nodes, Mule Entities).
-- **Directed Edges $\mathcal{E}(t)$:** Individual fund transfers from origin $u$ to destination $v$ at time $t$.
-- **Node Feature Matrix $\mathbf{X}_{\mathcal{V}} \in \mathbb{R}^{|\mathcal{V}| \times 8}$:** Log-sent amount, log-received amount, out-degree centrality, in-degree centrality, flow balance ratio $\beta(v)$, counterparty diversity, cycle involvement flag, and historical risk prior.
-- **Edge Feature Matrix $\mathbf{X}_{\mathcal{E}} \in \mathbb{R}^{|\mathcal{E}| \times 8}$:** Log-normalized amount, one-hot payment rail vector (`[UPI, IMPS, NEFT, RTGS]`), 24h transaction velocity, and cyclical harmonic timestamp encodings $[\sin(2\pi t/24), \cos(2\pi t/24)]$.
+> **💡 Simple Explanation:**
+> *Every transaction passes through 8 automated steps in less than 1 millisecond. If the AI detects an illicit ring, it blocks the transfer and writes the official government report automatically.*
 
 ---
 
-## 5. Inductive GraphSAGE Neural Network Architecture
+## 5. The Transaction Graph Model (Fig. 3)
 
 <div align="center">
-  <img src="docs/figures/fig4_graphsage_architecture.jpg" alt="Fig. 4 — Two-Layer GraphSAGE Architecture" width="95%" />
-  <p><em><b>Fig. 4</b> — Two-Layer Inductive GraphSAGE Neural Network Architecture for Multi-Hop Topological Aggregation and Edge Classification.</em></p>
+  <img src="docs/figures/fig3_directed_graph.jpg" alt="Fig. 3 — Dynamic Directed Financial Transaction Graph" width="92%" />
+  <p><em><b>Fig. 3</b> — Bank accounts represented as Nodes and money transfers as Directed Edges.</em></p>
 </div>
 
-### Mathematical Formulations
-
-#### 1. Inductive Neighborhood Aggregation
-For any account node $v \in \mathcal{V}$ at layer $k \in \{1, 2\}$:
-$$h_{\mathcal{N}(v)}^{(k)} = \frac{1}{|\mathcal{N}(v)|} \sum_{u \in \mathcal{N}(v)} h_u^{(k-1)}$$
-$$h_v^{(k)} = \text{ReLU} \left( \mathbf{W}_{\text{self}}^{(k)} h_v^{(k-1)} + \mathbf{W}_{\text{neigh}}^{(k)} h_{\mathcal{N}(v)}^{(k)} \right)$$
-
-#### 2. Joint Edge-Level Transaction Classifier
-For a transaction edge from sender $u$ to receiver $v$:
-$$z_{uv} = \left[ h_u^{(2)} \parallel h_v^{(2)} \parallel \mathbf{e}_{uv} \right] \in \mathbb{R}^{16 + 16 + 8} = \mathbb{R}^{40}$$
-$$\text{RiskScore}(u, v) = \sigma \left( \mathbf{W}_{\text{classifier}} \cdot z_{uv} + b \right)$$
-
-#### 3. Class-Weighted Binary Cross-Entropy Loss ($w=3.5$)
-$$\mathcal{L}_{\text{Weighted-BCE}} = -\frac{1}{M} \sum_{i=1}^{M} \left[ w \cdot y_i \log(\hat{y}_i) + (1 - y_i) \log(1 - \hat{y}_i) \right]$$
+### 📌 What Fig. 3 Shows:
+- **Blue/Green Circles (Nodes):** Individual bank accounts (Retail, Merchant, Corporate, and Mules).
+- **Arrows (Edges):** Money moving between accounts. Each arrow carries:
+  1. Amount (Log-scaled INR)
+  2. Channel (UPI, IMPS, NEFT, RTGS)
+  3. Time velocity (Frequency of transfers in last 24h)
+  4. Cycle flag (Is it part of a loop?)
 
 ---
 
-## 6. Financial Crime Typologies & Graph Signatures
+## 6. How the 2-Layer GraphSAGE AI Works (Fig. 4)
 
 <div align="center">
-  <img src="docs/figures/fig5_aml_topologies.jpg" alt="Fig. 5 — AML Transaction Topologies" width="95%" />
-  <p><em><b>Fig. 5</b> — Financial Crime Typologies: (a) Circular Laundering Ring, (b) Smurfing / Structuring, and (c) Mule Layering Networks.</em></p>
+  <img src="docs/figures/fig4_graphsage_architecture.jpg" alt="Fig. 4 — Two-Layer GraphSAGE Architecture" width="92%" />
+  <p><em><b>Fig. 4</b> — 2-Layer Inductive Neighborhood Sampling and Feature Aggregation.</em></p>
 </div>
 
-| Crime Typology | Graph Structural Signature | Algorithmic Detection Mechanism | Action Directive |
+```
+[Sender u] <---- Aggregates 10 Neighbors <---- Aggregates 5 2-Hop Neighbors ===> Node Embedding (16-D)
+                                                                                       |
+[Receiver v] <-- Aggregates 10 Neighbors <---- Aggregates 5 2-Hop Neighbors ===> Node Embedding (16-D)
+                                                                                       |
+[Edge Features e_uv] ----------------------------------------------------------> Edge Vector (8-D)
+                                                                                       |
+                                                                                       v
+                                                                             Concat Vector (40-D)
+                                                                                       ↓
+                                                                             Sigmoid Classifier
+                                                                                       ↓
+                                                                           Risk Score: [0.0 - 1.0]
+```
+
+> **💡 Simple Explanation:**
+> *"GraphSAGE doesn't just look at who sent the money; it looks at who they transacted with (1st hop), and who those people transacted with (2nd hop). It mixes all these signals together into a smart numerical fingerprint to classify risk."*
+
+---
+
+## 7. The 3 Money Laundering Crime Patterns We Catch (Fig. 5)
+
+<div align="center">
+  <img src="docs/figures/fig5_aml_topologies.jpg" alt="Fig. 5 — AML Transaction Topologies" width="92%" />
+  <p><em><b>Fig. 5</b> — (a) Circular Layering Ring, (b) Smurfing / Structuring, and (c) Mule Layering Networks.</em></p>
+</div>
+
+```
+(A) CIRCULAR RING                 (B) SMURFING / STRUCTURING             (C) MULE FAN-IN / FAN-OUT
+   Account A                           Source Account                         Source Account
+    /     ^                               /   |   \                              /   |   \
+   v       \                            v     v     v                          v     v     v
+Account B -> Account C                Mule1 Mule2 Mule3                      Mule1 Mule2 Mule3
+(Money goes in a circle)                \     |     /                          \     |     /
+                                         v    v    v                            v    v    v
+                                      Consolidator Account                   Offshore Destination
+```
+
+1. **Circular Layering Rings:** Sending money in a loop ($A \to B \to C \to D \to A$) to make illicit cash look like legitimate business trade.
+2. **Smurfing / Structuring:** Breaking ₹30 Lakhs into 10 smaller ₹3 Lakh transfers so no single transfer exceeds the ₹10 Lakh statutory limit.
+3. **Mule Fan-Out / Fan-In:** Spreading funds to hundreds of fake/rented accounts and immediately pooling them into an offshore account.
+
+---
+
+## 8. 4-Tier Risk Decision & Auto-Freeze Engine (Fig. 6)
+
+<div align="center">
+  <img src="docs/figures/fig6_risk_scoring_workflow.jpg" alt="Fig. 6 — Risk Scoring and Alert Generation Workflow" width="92%" />
+  <p><em><b>Fig. 6</b> — Automated Tier-Based Action Thresholds and PMLA Freezing Gate.</em></p>
+</div>
+
+| Risk Level | AI Risk Score | Automated Action | Regulatory Outcome |
 | :--- | :--- | :--- | :--- |
-| **Circular Layering Loop** | Closed directed loop: $A \to B \to C \to D \to A$ | GraphSAGE 2-hop neighborhood loop aggregation + Tarjan Cycle Detection | $\ge 0.85$ (Critical / Auto-Freeze) |
-| **Smurfing / Structuring** | High fan-out sub-threshold bursts to distributed mules | Burst out-degree velocity + sub-₹5,00,000 amount clustering | $\ge 0.70$ (High Suspicion / Triage) |
-| **Mule Fan-Out / Fan-In** | Star topology: Inflow from multiple sources followed by rapid reconsolidation | Flow balance ratio anomaly + near-zero holding dwell time ($<10\text{ min}$) | $\ge 0.70$ (High Suspicion / Triage) |
-| **Legitimate Retail Flow** | Dispersed, low-frequency, non-cyclic graph edges | Normal node feature aggregation without cyclical resonance | $< 0.40$ (Normal / Cleared) |
+| 🔴 **Critical Risk** | $\mathbf{\ge 0.85}$ (or Cycle $+ \ge 0.70$) | **Auto-Freeze Account Instantly** | FIU-IND Suspicious Transaction Report (STR) synthesized |
+| 🟠 **High Suspicion** | $\mathbf{0.70 - 0.84}$ | Route to Compliance Triage Desk | Case priority queue with topological graph view |
+| 🟡 **Medium Watch** | $\mathbf{0.40 - 0.69}$ | Add to Enhanced Velocity Watchlist | Monitor rolling 24-hour transaction frequency |
+| 🟢 **Low / Safe** | $\mathbf{< 0.40}$ | **Auto-Approve & Settle** | Normal core banking clearance |
 
 ---
 
-## 7. 4-Tier Risk Decision Engine & Triage Gate
+## 9. High-Speed Streaming Pipeline (Fig. 7)
 
 <div align="center">
-  <img src="docs/figures/fig6_risk_scoring_workflow.jpg" alt="Fig. 6 — Risk Scoring and Alert Generation Workflow" width="95%" />
-  <p><em><b>Fig. 6</b> — 4-Tier Automated Risk Scoring, Account Freezing, and FIU-IND STR Triage Workflow.</em></p>
+  <img src="docs/figures/fig7_streaming_pipeline.jpg" alt="Fig. 7 — Real-Time Transaction Streaming Pipeline" width="92%" />
+  <p><em><b>Fig. 7</b> — Streaming Infrastructure capable of sustaining >8,500 transactions/second.</em></p>
 </div>
 
-```mermaid
-stateDiagram-v2
-    [*] --> IngestTransaction
-    IngestTransaction --> ComputeRiskScore
-    
-    state ComputeRiskScore {
-        GraphSAGE_Inference --> CalibrateProbability
-    }
-    
-    CalibrateProbability --> CriticalRisk : Score >= 0.85 or (Cycle & Score >= 0.70)
-    CalibrateProbability --> HighRisk : 0.70 <= Score < 0.85
-    CalibrateProbability --> MediumRisk : 0.40 <= Score < 0.70
-    CalibrateProbability --> LowRisk : Score < 0.40
-    
-    CriticalRisk --> AutoFreezeAccount : Immediate PMLA Hold
-    AutoFreezeAccount --> GenerateFIU_SAR : Statutory Reporting
-    HighRisk --> ManualTriageDesk : Compliance Escalation
-    MediumRisk --> EnhancedWatchlist : Velocity Monitoring
-    LowRisk --> AutoClear : Settle Payment Rails
-```
+### ⚡ Performance Specs:
+- **Throughput:** $>8,500$ transactions/second.
+- **Inference Latency:** **$0.55\text{ ms}$** per transaction.
+- **Scale:** Non-blocking in-memory graph updates allowing real-time banking operations.
 
 ---
 
-## 8. High-Throughput Streaming & Ingestion Rails
+## 10. MLOps Concept Drift & Self-Healing Retraining (Fig. 8 & Fig. 13)
 
 <div align="center">
-  <img src="docs/figures/fig7_streaming_pipeline.jpg" alt="Fig. 7 — Real-Time Transaction Streaming Pipeline" width="95%" />
-  <p><em><b>Fig. 7</b> — Distributed Event Streaming Pipeline with Apache Kafka, In-Memory MultiDiGraph, and WebSocket Dispatchers.</em></p>
-</div>
-
-### Streaming Specifications
-- **Ingestion Velocity:** Sustains $>8,500\text{ transactions/second}$.
-- **Inference Latency:** Median **$0.55\text{ ms}$** per transaction on standard hardware.
-- **Continuous State Management:** Non-blocking graph synchronization allowing dynamic node and edge ingestion while concurrent GNN inference batches execute.
-
----
-
-## 9. MLOps Governance & Kolmogorov-Smirnov Concept Drift
-
-<div align="center">
-  <img src="docs/figures/fig8_mlops_drift_monitoring.jpg" alt="Fig. 8 — MLOps and Concept Drift Monitoring Workflow" width="95%" />
-  <p><em><b>Fig. 8</b> — MLOps Concept Drift Monitoring Loop with Continuous Kolmogorov-Smirnov Testing & Automated Retraining.</em></p>
+  <img src="docs/figures/fig8_mlops_drift_monitoring.jpg" alt="Fig. 8 — MLOps and Concept Drift Monitoring Workflow" width="92%" />
+  <p><em><b>Fig. 8</b> — Autonomous Retraining Feedback Loop using Kolmogorov-Smirnov Statistical Testing.</em></p>
 </div>
 
 <br/>
 
 <div align="center">
-  <img src="docs/figures/fig13_ks_drift_distributions.png" alt="Fig. 13 — Empirical Kolmogorov-Smirnov Concept Drift Testing" width="95%" />
-  <p><em><b>Fig. 13</b> — Empirical Two-Sample Kolmogorov-Smirnov (KS) Concept Drift ECDF Distribution Divergence ($D_{\text{KS}} = 0.449, p < 0.001$).</em></p>
+  <img src="docs/figures/fig13_ks_drift_distributions.png" alt="Fig. 13 — Empirical Kolmogorov-Smirnov Concept Drift Testing" width="92%" />
+  <p><em><b>Fig. 13</b> — Kolmogorov-Smirnov Cumulative Curves showing the gap ($D_{\text{KS}} = 0.449, p < 0.001$) triggering retraining.</em></p>
 </div>
 
-### Why Unsupervised KS Testing is Mandatory in AML
-In financial compliance, ground-truth audit labels take 30 to 90 days (**label latency**). Supervised drift monitors (e.g., accuracy degradation) are blind during this interval.
-
-The **Two-Sample Kolmogorov-Smirnov Test** compares the Empirical Cumulative Distribution Function ($ECDF$) of baseline reference scores $F_{\text{ref}}(x)$ against live production inference stream scores $F_{\text{prod}}(x)$:
-
-$$D_{\text{KS}} = \sup_{x} \left| F_{\text{ref}}(x) - F_{\text{prod}}(x) \right|$$
-
-$$\text{Reject } H_0 \text{ (Drift Confirmed) if } p\text{-value} < 0.05 \implies \text{Trigger Autonomous GNN Retraining}$$
+### 🧠 Why This Matters:
+- Criminals change their patterns frequently.
+- Banks usually don't know a transaction was illegal until 30–90 days later (**label latency**).
+- Our system uses the **Two-Sample Kolmogorov-Smirnov (KS) Test** to monitor live score distributions without needing labels. If the score curve shifts ($p < 0.05$), the system **automatically retrains the AI in the background** and hot-swaps the model weights with zero downtime.
 
 ---
 
-## 10. Compliance Investigation Dashboard & SAR Generation
+## 11. Investigation Dashboard & Automated SAR/STR Generator (Fig. 9)
 
 <div align="center">
   <img src="docs/figures/fig9_investigation_dashboard.png" alt="Fig. 9 — Web-Based AML Investigation Dashboard" width="95%" />
-  <p><em><b>Fig. 9</b> — Live Production Web Interface displaying real-time batch topology, dynamic node indicators, particle flows, and Selected Account Inspector.</em></p>
+  <p><em><b>Fig. 9</b> — Production Web Interface with Force-Directed Graph and One-Click Compliance Triage.</em></p>
 </div>
 
-### Regulatory Features
-1. **Interactive Force-Directed Topology Visualizer:** HTML5 Canvas visualizer rendering node entities, dynamic color coding (Crimson for Critical, Amber for Suspicious, Emerald for Cleared), and animated velocity particles.
-2. **Automated Statutory SAR Synthesis:** Generates complete regulatory filings compliant with **FIU-IND** (Financial Intelligence Unit - India) and **FinCEN** guidelines:
-   - Identifies source initiator, intermediary mule hops, amounts, settlement channels, timestamps, and structural crime topology attribution.
-3. **One-Click Triage Actions:** Direct account freeze directives, case notes logging, and tamper-evident audit trail exports.
+### 🛠️ Key Dashboard Capabilities:
+1. **Interactive Force-Directed Graph:** Live visual canvas showing money flowing between accounts with particle animations.
+2. **Auto-Generated FIU-IND SAR Narratives:** Turns graph data into regulatory legal English paragraphs ready to file with law enforcement.
+3. **One-Click Actions:** Compliance officers can review alerts, inspect counterparties, and confirm account freezes.
 
 ---
 
-## 11. Empirical Research Benchmarks & Multi-Model Evaluation
+## 12. Empirical Research Results & Benchmarks (Fig. 10, Fig. 11, Fig. 12)
 
 <div align="center">
   <img src="docs/figures/fig10_empirical_roc_pr_curves.png" alt="Fig. 10 — Empirical ROC-AUC and PR-AUC Curves" width="95%" />
-  <p><em><b>Fig. 10</b> — Empirical Dual-Panel Benchmark: (A) ROC-AUC Curves and (B) Precision-Recall (PR-AUC) Curves across 6 Detection Paradigms.</em></p>
+  <p><em><b>Fig. 10</b> — (A) ROC Curves and (B) Precision-Recall (PR-AUC) Curves proving GraphSAGE outclasses all baselines.</em></p>
 </div>
 
 <br/>
 
 <div align="center">
   <img src="docs/figures/fig11_model_benchmark_bars.png" alt="Fig. 11 — Model Benchmark Bar Comparison" width="95%" />
-  <p><em><b>Fig. 11</b> — Head-to-Head Quantitative Model Evaluation (Precision, Recall, F1-Score, ROC-AUC, and PR-AUC).</em></p>
+  <p><em><b>Fig. 11</b> — Head-to-Head Comparison: Precision, Recall, F1-Score, ROC-AUC, and PR-AUC.</em></p>
 </div>
 
 <br/>
 
 <div align="center">
   <img src="docs/figures/fig12_confusion_matrices.png" alt="Fig. 12 — Confusion Matrix Comparison" width="95%" />
-  <p><em><b>Fig. 12</b> — Binary Classification Confusion Matrix Comparison showing 93.19% False Alarm Reduction via Inductive GraphSAGE.</em></p>
+  <p><em><b>Fig. 12</b> — Confusion Matrices demonstrating a 93.19% reduction in false alarms.</em></p>
 </div>
 
-### Master Empirical Benchmark Table ($N = 15,387$ Transactions)
+### 🏆 Empirical Benchmark Summary ($N = 15,387$ Transactions)
 
-| Detection Architecture / Model | Precision (%) | Recall (%) | F1-Score (%) | ROC-AUC (%) | PR-AUC (%) | Latency (ms) |
+| Model Architecture | Precision (%) | Recall (%) | F1-Score (%) | ROC-AUC (%) | PR-AUC (%) | Latency |
 | :--- | :--- | :--- | :--- | :--- | :--- | :--- |
-| **Traditional Rule-Based Static Thresholds** | 65.57% | 100.00%* | 79.20% | 96.11% | 65.00% | **0.09 ms** |
-| **Tabular Logistic Regression (Class-Weighted)** | 63.66% | 100.00%* | 77.80% | 96.36% | 71.65% | 0.001 ms |
-| **Tabular Random Forest Classifier** | 80.67% | 50.89% | 62.41% | 74.79% | 54.38% | 0.01 ms |
-| **Tabular Gradient Boosted Trees (XGBoost/HGB)** | 66.56% | 65.04% | 65.79% | 67.93% | 50.68% | 0.003 ms |
-| **Standard Spectral Graph Convolution (GCN)** | 29.12% | 65.53% | 40.32% | 75.72% | 32.53% | 0.54 ms |
-| **Proposed 2-Layer Inductive GraphSAGE (Ours)** | **96.21%** | **90.89%** | **93.48%** | **99.53%** | **97.65%** | **0.55 ms** |
+| **Traditional Rule Engine** | 65.57% | 100.00%* | 79.20% | 96.11% | 65.00% | 0.09 ms |
+| **Tabular Logistic Regression** | 63.66% | 100.00%* | 77.80% | 96.36% | 71.65% | 0.001 ms |
+| **Tabular Random Forest** | 80.67% | 50.89% | 62.41% | 74.79% | 54.38% | 0.01 ms |
+| **Tabular XGBoost / HGB** | 66.56% | 65.04% | 65.79% | 67.93% | 50.68% | 0.003 ms |
+| **Standard Spectral GCN** | 29.12% | 65.53% | 40.32% | 75.72% | 32.53% | 0.54 ms |
+| **Proposed Inductive GraphSAGE (Ours)**| **96.21%** | **90.89%** | **93.48%** | **99.53%** | **97.65%** | **0.55 ms** |
 
-*\*Note: Rule-based static thresholds and unconstrained naive models achieve 100% recall only by aggressively over-flagging huge volumes of benign transactions, leading to severe false-positive fatigue.*
+*\*Note: Rule engines and naive models achieve high recall only by over-flagging huge amounts of legitimate transactions, creating massive backlogs.*
 
 ---
 
-## 12. Master Viva, Thesis & IEEE Reviewer Q&A
+## 13. Master Viva & Thesis Q&A Guide
 
-### Q1: Why do conventional machine learning algorithms (XGBoost / Random Forest) fail at AML detection?
-**Answer:** Tabular ML treats each transaction as an independent, identically distributed ($i.i.d.$) flat data point. In organized financial crime, each single transaction in a circular ring or smurfing syndicate is deliberately sized below statutory reporting limits and looks completely legitimate on its own. Only by evaluating the **multi-hop topological connectivity and counterparty graph structure** can circular layering and mule networks be detected.
+### Q1: What is the main research question of your project?
+**Answer:** How can financial institutions detect coordinated, multi-hop money laundering schemes (circular rings, smurfing syndicates) in real-time streaming rails (UPI, IMPS, NEFT, RTGS) without generating massive false alarm rates and without being blinded by label latency?
 
-### Q2: Why did you choose Inductive GraphSAGE over Spectral GCN or Graph Attention (GAT)?
-**Answer:** Standard spectral GCNs are transductive and require full-graph Laplacian matrix decomposition $\mathbf{L} = \mathbf{D}^{-1/2}\mathbf{A}\mathbf{D}^{-1/2}$, which requires knowing all nodes in advance and retraining whenever a new transaction arrives. In core banking streams where thousands of new virtual payment addresses (VPAs) and accounts appear every second, transductive GCN is computationally impossible. **GraphSAGE is inductive:** it learns generalizable parameter weight matrices over sampled local 2-hop neighborhoods ($S_1=10, S_2=5$), enabling instant **zero-shot inference ($0.55\text{ ms}$)** for newly initialized accounts.
+### Q2: Why is Tabular ML (XGBoost) not suitable for AML?
+**Answer:** XGBoost evaluates transactions independently as flat rows. But money laundering is relational — individual transactions within a smurfing syndicate look completely normal. Only graph topological learning can connect the dots across multiple hops.
 
-### Q3: How do you address extreme class imbalance ($< 4.5\%$ illicit cases)?
-**Answer:** We implement two complementary mechanisms:
-1. **Class-Weighted Binary Cross-Entropy Loss ($w=3.5$):** Heavily penalizes false negatives on the minority illicit class during gradient descent.
-2. **Precision-Recall Curve Calibration ($\tau^*$):** We tune the classification decision threshold to maximize the F1-score and PR-AUC, rather than relying on standard $0.50$ thresholds.
+### Q3: Why did you pick GraphSAGE instead of GCN or GAT?
+**Answer:** Spectral GCNs are transductive (they need the whole graph matrix and cannot handle new accounts without slow retraining). **GraphSAGE is inductive:** it samples fixed local neighborhoods ($S_1=10, S_2=5$) and enables instant **zero-shot inference in $0.55\text{ ms}$** for brand-new bank accounts.
 
-### Q4: Where is the dataset stored and how is it generated?
-**Answer:** The dataset is generated and managed by [`src/benchmark_runner.py`](file:///c:/Users/shese/Desktop/abbhas_final_year_project/src/benchmark_runner.py) and [`src/data_generator.py`](file:///c:/Users/shese/Desktop/abbhas_final_year_project/src/data_generator.py). It models 15,387 realistic transactions across 1,200 accounts (Retail, Merchant, Corporate, and Mule entities) across Indian payment rails (`UPI`, `IMPS`, `NEFT`, `RTGS`) with authentic log-normal INR amount distributions, verified laundering topologies, and is persisted in [`benchmark_results.json`](file:///c:/Users/shese/Desktop/abbhas_final_year_project/benchmark_results.json).
+### Q4: How did you handle class imbalance ($< 4.5\%$ fraud cases)?
+**Answer:** We used **Class-Weighted Binary Cross-Entropy Loss ($w=3.5$)** to penalize false negatives during training, and calibrated the classification threshold $\tau^*$ to maximize the Precision-Recall AUC (PR-AUC: **97.65%**).
 
-### Q5: What is "Label Latency" and how does your MLOps system solve it?
-**Answer:** Label latency is the 30 to 90-day time lag between a suspicious transaction occurring and a human compliance officer/forensic auditor confirming the true Suspicious Activity Report label. Because ground truth is unavailable in real time, supervised drift detection cannot be used. We solve this by implementing the **Two-Sample Kolmogorov-Smirnov (KS) test** ($D_{\text{KS}}$), an unsupervised statistical test that monitors production score distributions against baseline reference distributions in real time, triggering autonomous retraining when $p < 0.05$.
-
-### Q6: What quantitative evidence proves our project is ready for IEEE publication?
-**Answer:** 
-1. **PR-AUC Dominance:** GraphSAGE achieves **97.65% PR-AUC**, compared to XGBoost's $50.68\%$ and Spectral GCN's $32.53\%$.
-2. **False Positive Suppression:** Reduces false alarms by **93.19%** compared to statutory rule engines.
-3. **Core Banking Operational Feasibility:** Operates with a median inference latency of **0.55 ms**, supporting $>1,800$ to $8,500$ transactions/second.
+### Q5: What is the Kolmogorov-Smirnov test in your MLOps pipeline?
+**Answer:** It is a statistical test ($D_{\text{KS}}$) comparing the probability distribution of baseline model scores against live streaming scores. When criminals change tactics and scores diverge significantly ($p < 0.05$), it automatically triggers background retraining without waiting 30–90 days for manual audit labels.
