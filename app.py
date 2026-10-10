@@ -26,6 +26,7 @@ except Exception:
 
 # Import modular pipeline components
 from src.data_generator import AMLDataGenerator
+from src.dataset_loader import BankDatasetLoader
 from src.transaction_processor import TransactionProcessor
 from src.graph_builder import TransactionGraph
 from src.gnn_model import GNNModelManager
@@ -34,6 +35,7 @@ from src.mlops_monitor import MLOpsMonitor
 from src.graph_visualizer import GraphVisualizer
 
 # Global System State Singletons
+dataset_loader = BankDatasetLoader(dataset_dir="dataset")
 data_gen = AMLDataGenerator(num_accounts=150, seed=42)
 processor = TransactionProcessor()
 tx_graph = TransactionGraph()
@@ -52,16 +54,26 @@ pipeline_stats = {
     "avg_latency": "0.12 ms"
 }
 
-# Initial seed
-initial_df = data_gen.generate_dataset(num_normal=25, num_rings=1, num_smurfs=1)
-for _, row in initial_df.iterrows():
-    tx_dict = row.to_dict()
-    tx_graph.add_transaction(tx_dict)
-    r_score, _ = gnn_manager.score_transaction(tx_dict, tx_graph, processor)
-    alert_engine.evaluate_transaction(tx_dict, r_score, tx_graph, processor)
-    mlops.record_production_inference(float(tx_dict["amount"]), r_score, int(tx_dict.get("is_aml", 0)))
+# Initial seed loaded directly from stored offline multi-bank datasets
+try:
+    initial_txs = dataset_loader.sample_transactions(n=35)
+    for tx_dict in initial_txs:
+        tx_graph.add_transaction(tx_dict)
+        r_score, _ = gnn_manager.score_transaction(tx_dict, tx_graph, processor)
+        alert_engine.evaluate_transaction(tx_dict, r_score, tx_graph, processor)
+        mlops.record_production_inference(float(tx_dict["amount"]), r_score, int(tx_dict.get("is_aml", 0)))
+    pipeline_stats["total_ingested"] = len(initial_txs)
+except Exception as e:
+    print(f"[!] Falling back to synthetic seed: {e}")
+    initial_df = data_gen.generate_dataset(num_normal=25, num_rings=1, num_smurfs=1)
+    for _, row in initial_df.iterrows():
+        tx_dict = row.to_dict()
+        tx_graph.add_transaction(tx_dict)
+        r_score, _ = gnn_manager.score_transaction(tx_dict, tx_graph, processor)
+        alert_engine.evaluate_transaction(tx_dict, r_score, tx_graph, processor)
+        mlops.record_production_inference(float(tx_dict["amount"]), r_score, int(tx_dict.get("is_aml", 0)))
+    pipeline_stats["total_ingested"] = len(initial_df)
 
-pipeline_stats["total_ingested"] = len(initial_df)
 pipeline_stats["total_nodes"] = tx_graph.G.number_of_nodes()
 pipeline_stats["total_edges"] = tx_graph.G.number_of_edges()
 pipeline_stats["total_alerts"] = len(alert_engine.alerts_store)
@@ -152,6 +164,18 @@ def get_stats():
         "avg_latency": pipeline_stats["avg_latency"]
     }
 
+@api.get("/api/v1/datasets")
+def get_datasets_catalog():
+    try:
+        return {
+            "status": "success",
+            "total_files": 14,
+            "directory": "dataset/",
+            "datasets": dataset_loader.list_available_datasets()
+        }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
 @api.get("/api/v1/benchmarks")
 def get_benchmarks():
     try:
@@ -205,17 +229,18 @@ def score_transaction_api(req: SingleTransactionRequest):
 def simulate_pipeline_api(req: SimulationRequest):
     start_time = time.time()
     count = max(10, min(int(req.volume), 200))
-    df = data_gen.generate_bulk_stream(total_count=count)
+    try:
+        tx_list = dataset_loader.sample_transactions(n=count)
+    except Exception:
+        tx_list = data_gen.generate_bulk_stream(total_count=count).to_dict(orient="records")
     
-    for _, row in df.iterrows():
-        tx_dict = row.to_dict()
+    for tx_dict in tx_list:
         tx_graph.add_transaction(tx_dict)
         
     new_alerts_count = 0
     scored_items = []
     
-    for _, row in df.iterrows():
-        tx_dict = row.to_dict()
+    for tx_dict in tx_list:
         r_score, _ = gnn_manager.score_transaction(tx_dict, tx_graph, processor)
         eval_res = alert_engine.evaluate_transaction(tx_dict, r_score, tx_graph, processor)
         mlops.record_production_inference(float(tx_dict["amount"]), r_score, int(tx_dict.get("is_aml", 0)))

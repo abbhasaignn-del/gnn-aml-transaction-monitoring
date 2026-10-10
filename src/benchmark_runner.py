@@ -1,4 +1,5 @@
 import os
+import sys
 import time
 import json
 import random
@@ -6,6 +7,9 @@ import numpy as np
 import pandas as pd
 from datetime import datetime, timedelta
 from typing import Dict, Any, List, Tuple
+
+# Ensure project root is in path
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
 import torch
 import torch.nn as nn
@@ -21,6 +25,7 @@ import networkx as nx
 from src.gnn_model import AMLGraphSAGE, SAGEConvLayer
 from src.graph_builder import TransactionGraph
 from src.transaction_processor import TransactionProcessor
+from src.dataset_loader import BankDatasetLoader
 
 class RealWorldAMLBenchmark:
     """
@@ -41,148 +46,24 @@ class RealWorldAMLBenchmark:
         self.seed = seed
         self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
-    def generate_or_load_real_world_dataset(self, num_accounts: int = 1500, num_transactions: int = 25000) -> pd.DataFrame:
+    def generate_or_load_real_world_dataset(self, dataset_dir: str = "dataset") -> pd.DataFrame:
         """
-        Synthesizes / structures an authentic Indian Banking Financial Multigraph Stream
-        mimicking real-world high-throughput payment rails (UPI, IMPS, NEFT, RTGS)
-        with verified FATF & FIU-IND laundering topologies embedded in normal traffic.
+        Loads the multi-bank benchmark dataset directly from persistent files in 'dataset/'
+        covering 14 institutional sources (SBI, HDFC, ICICI, Axis, Kotak, PNB, IndusInd,
+        Yes Bank, Canara, BoB, Circular Loops, Smurfing Batches, Mule Syndicates, and Interbank Clearing).
         """
-        print(f"[*] Generating realistic Indian banking multigraph dataset ({num_accounts} accounts, ~{num_transactions} transactions)...")
-        
-        retail_accounts = [f"ACC_IND_RET_{10000 + i}" for i in range(int(num_accounts * 0.70))]
-        merchant_accounts = [f"ACC_IND_MER_{20000 + i}" for i in range(int(num_accounts * 0.20))]
-        corporate_accounts = [f"ACC_IND_CORP_{30000 + i}" for i in range(int(num_accounts * 0.07))]
-        mule_pool = [f"ACC_IND_MULE_{40000 + i}" for i in range(int(num_accounts * 0.03))]
-        
-        channels = ["UPI", "IMPS", "NEFT", "RTGS"]
-        channel_weights = [0.65, 0.20, 0.10, 0.05]
-        
-        transactions = []
-        base_time = datetime(2026, 1, 15, 8, 0, 0)
-        tx_id_seq = 500000
+        from src.dataset_loader import BankDatasetLoader
+        print(f"[*] Discovering and loading transactional dataset files from: '{dataset_dir}'...")
+        loader = BankDatasetLoader(dataset_dir=dataset_dir)
+        summaries = loader.list_available_datasets()
+        print(f"[+] Found {len(summaries)} distinct institutional dataset files on disk:")
+        for s in summaries:
+            print(f"    - {s['filename']:<36} | {s['total_records']:>6} rows | AML: {s['aml_records']:>4} | {s['bank']}")
 
-        # 1. Normal Banking Transactions (98.2% majority class)
-        target_normal = int(num_transactions * 0.982)
-        for i in range(target_normal):
-            tx_id_seq += 1
-            t = base_time + timedelta(seconds=i * random.randint(1, 15))
-            ch = random.choices(channels, weights=channel_weights, k=1)[0]
-            
-            if ch == "UPI":
-                amount = float(np.random.lognormal(mean=5.8, sigma=1.0))
-                sender = random.choice(retail_accounts)
-                receiver = random.choice(retail_accounts + merchant_accounts)
-            elif ch == "IMPS":
-                amount = float(np.random.lognormal(mean=8.2, sigma=0.9))
-                sender = random.choice(retail_accounts)
-                receiver = random.choice(retail_accounts + merchant_accounts)
-            elif ch == "NEFT":
-                amount = float(np.random.lognormal(mean=10.5, sigma=1.1))
-                sender = random.choice(retail_accounts + corporate_accounts)
-                receiver = random.choice(corporate_accounts + retail_accounts)
-            else: # RTGS
-                amount = float(np.random.lognormal(mean=13.0, sigma=0.8))
-                sender = random.choice(corporate_accounts)
-                receiver = random.choice(corporate_accounts)
-                
-            amount = max(10.0, round(amount, 2))
-            
-            transactions.append({
-                "transaction_id": f"TX_IN_{tx_id_seq}",
-                "sender_account": sender,
-                "receiver_account": receiver,
-                "amount": amount,
-                "timestamp": t.strftime("%Y-%m-%d %H:%M:%S"),
-                "transaction_type": "TRANSFER",
-                "channel": ch,
-                "country": "IN",
-                "is_aml": 0,
-                "pattern_type": "NORMAL_STREAM"
-            })
-
-        # 2. Inject Money Laundering Typology 1: Circular Layering Rings (A -> B -> C -> D -> A)
-        num_rings = 45
-        for r in range(num_rings):
-            ring_size = random.randint(3, 6)
-            ring_nodes = random.sample(mule_pool + retail_accounts, ring_size)
-            base_amount = random.uniform(250000, 1500000)
-            ring_time = base_time + timedelta(hours=random.randint(1, 200))
-            
-            for step in range(ring_size):
-                tx_id_seq += 1
-                sender = ring_nodes[step]
-                receiver = ring_nodes[(step + 1) % ring_size]
-                step_amount = round(base_amount * (0.96 ** step), 2)
-                t_step = ring_time + timedelta(minutes=step * random.randint(5, 25))
-                
-                transactions.append({
-                    "transaction_id": f"TX_IN_{tx_id_seq}",
-                    "sender_account": sender,
-                    "receiver_account": receiver,
-                    "amount": step_amount,
-                    "timestamp": t_step.strftime("%Y-%m-%d %H:%M:%S"),
-                    "transaction_type": "SETTLEMENT",
-                    "channel": random.choice(["IMPS", "NEFT", "RTGS"]),
-                    "country": random.choice(["IN", "IN", "KY", "SG"]),
-                    "is_aml": 1,
-                    "pattern_type": "CIRCULAR_RING"
-                })
-
-        # 3. Inject Money Laundering Typology 2: Smurfing / Structuring (Fan-Out -> Fan-In)
-        num_smurfs = 35
-        for s in range(num_smurfs):
-            source = random.choice(corporate_accounts + retail_accounts)
-            collector = random.choice(mule_pool + corporate_accounts)
-            num_mules = random.randint(4, 9)
-            mules = random.sample(mule_pool, min(num_mules, len(mule_pool)))
-            
-            total_sum = random.uniform(800000, 3000000)
-            chunk_amt = total_sum / len(mules)
-            smurf_time = base_time + timedelta(hours=random.randint(2, 250))
-            
-            # Fan-out
-            for m_idx, mule in enumerate(mules):
-                tx_id_seq += 1
-                tx_amt = round(chunk_amt * random.uniform(0.92, 1.05), 2)
-                t_fo = smurf_time + timedelta(minutes=m_idx * 4)
-                transactions.append({
-                    "transaction_id": f"TX_IN_{tx_id_seq}",
-                    "sender_account": source,
-                    "receiver_account": mule,
-                    "amount": tx_amt,
-                    "timestamp": t_fo.strftime("%Y-%m-%d %H:%M:%S"),
-                    "transaction_type": "TRANSFER",
-                    "channel": "UPI" if tx_amt < 100000 else "IMPS",
-                    "country": "IN",
-                    "is_aml": 1,
-                    "pattern_type": "SMURF_FAN_OUT"
-                })
-                
-            # Fan-in
-            for m_idx, mule in enumerate(mules):
-                tx_id_seq += 1
-                tx_amt = round(chunk_amt * 0.95, 2)
-                t_fi = smurf_time + timedelta(hours=1, minutes=m_idx * 6)
-                transactions.append({
-                    "transaction_id": f"TX_IN_{tx_id_seq}",
-                    "sender_account": mule,
-                    "receiver_account": collector,
-                    "amount": tx_amt,
-                    "timestamp": t_fi.strftime("%Y-%m-%d %H:%M:%S"),
-                    "transaction_type": "TRANSFER",
-                    "channel": "NEFT",
-                    "country": "IN",
-                    "is_aml": 1,
-                    "pattern_type": "SMURF_FAN_IN"
-                })
-
-        df = pd.DataFrame(transactions)
-        df["dt"] = pd.to_datetime(df["timestamp"])
-        df = df.sort_values("dt").reset_index(drop=True).drop(columns=["dt"])
-        
-        aml_count = df["is_aml"].sum()
+        df = loader.load_all_datasets()
+        aml_count = int(df["is_aml"].sum()) if "is_aml" in df.columns else 0
         total_count = len(df)
-        print(f"[+] Dataset created: {total_count} total transactions, {aml_count} AML laundering edges ({aml_count/total_count*100:.2f}% illicit class ratio).")
+        print(f"[+] Loaded {total_count:,} unified transactions from physical files on disk ({aml_count:,} AML illicit edges, {aml_count/total_count*100:.2f}% ratio).")
         return df
 
     def extract_graph_and_tabular_features(self, df: pd.DataFrame) -> Tuple[np.ndarray, np.ndarray, TransactionGraph, TransactionProcessor]:
@@ -419,7 +300,7 @@ class RealWorldAMLBenchmark:
         print("   STARTING REAL-WORLD AML INDUCTIVE GNN RESEARCH BENCHMARK")
         print("==========================================================================")
         
-        df = self.generate_or_load_real_world_dataset(num_accounts=1200, num_transactions=15000)
+        df = self.generate_or_load_real_world_dataset(dataset_dir="dataset")
         
         n = len(df)
         train_end = int(n * 0.70)
